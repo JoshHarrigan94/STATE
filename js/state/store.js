@@ -28,6 +28,15 @@ export const store = {
     samplesRecorded: 0,
   },
 
+  assessment: {
+    activeId: "passive-scan",
+    status: "idle",
+    startedAt: null,
+    endedAt: null,
+    elapsedMs: 0,
+    result: null,
+  },
+
   signals: {
     eyeOpenness: null,
     leftEye: null,
@@ -63,17 +72,18 @@ export const store = {
   pattern: {
     status: "waiting",
     primaryLabel: "Waiting for baseline",
-    summary: "Pattern labels will unlock after the neutral reference window is captured.",
+    summary:
+      "Pattern labels will unlock after the neutral reference window is captured.",
     labels: [],
   },
-  
+
   summary: {
-  ready: false,
-  title: "Waiting for session",
-  summary:
-    "Complete a session to generate a behavioural signal summary.",
-  confidence: null,
-},
+    ready: false,
+    title: "Waiting for session",
+    summary:
+      "Complete a session to generate a behavioural signal summary.",
+    confidence: null,
+  },
 
   calibration: {
     sampleCount: 0,
