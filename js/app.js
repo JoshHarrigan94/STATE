@@ -148,7 +148,7 @@ function startVisionLoop(video) {
       );
 
       store.quality.notes = quality.notes;
-
+            pushTracePoint();
       updateDynamicUI(store);
     }
 
@@ -156,6 +156,19 @@ function startVisionLoop(video) {
   }
 
   loop();
+}
+
+function pushTracePoint() {
+  store.trace.points.push({
+    time: performance.now(),
+    eyeOpenness: store.signals.eyeOpenness,
+    headStability: store.signals.headStability,
+    expressionVariability: store.signals.expressionVariability,
+  });
+
+  if (store.trace.points.length > store.trace.maxPoints) {
+    store.trace.points.shift();
+  }
 }
 
 function cancelVisionLoop() {
@@ -201,7 +214,7 @@ function resetSystem() {
   store.quality.signalQuality = 0;
   store.quality.confidence = 0;
   store.quality.notes = [];
-
+    store.trace.points = [];
   fullRender();
 }
 
