@@ -130,7 +130,7 @@ async function startSystem() {
 
     startVisionLoop(videoElement);
     
-    startAppTicker();
+    //startAppTicker();
   } catch (error) {
     store.camera.status = "error";
     store.camera.error = error.message;
@@ -387,7 +387,7 @@ function cancelVisionLoop() {
 }
 
 function resetSystem() {
-  cancelAppTicker();
+  //cancelAppTicker();
   cancelVisionLoop();
   resetFeatureWindow();
   resetSmoothing();
