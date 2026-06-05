@@ -17,18 +17,26 @@ export function updateFeatureWindow(signals) {
       eyeOpenness: null,
       blinkRate: 0,
       blinkDuration: null,
+      headStability: null,
+      headTilt: null,
+      faceSize: null,
     };
   }
 
   samples.push({
     time: now,
     eyeOpenness: signals.eyeOpenness,
+    headTilt: signals.headTilt,
+    headCentreX: signals.headCentreX,
+    headCentreY: signals.headCentreY,
+    faceWidth: signals.faceWidth,
+    faceHeight: signals.faceHeight,
   });
 
   detectBlink(signals.eyeOpenness, now);
   prune(now);
 
-  return buildFeatures(now);
+  return buildFeatures();
 }
 
 function detectBlink(eyeOpenness, now) {
@@ -59,29 +67,73 @@ function prune(now) {
   blinkEvents = blinkEvents.filter(event => event.time >= windowStart);
 }
 
-function buildFeatures(now) {
-  const eyeValues = samples
-    .map(sample => sample.eyeOpenness)
+function buildFeatures() {
+  return {
+    eyeOpenness: average("eyeOpenness"),
+    blinkRate: blinkEvents.length * (60_000 / WINDOW_MS),
+    blinkDuration: averageBlinkDuration(),
+    headStability: calculateHeadStability(),
+    headTilt: average("headTilt"),
+    faceSize: averageFaceSize(),
+  };
+}
+
+function average(key) {
+  const values = samples
+    .map(sample => sample[key])
     .filter(value => Number.isFinite(value));
 
-  const averageEyeOpenness =
-    eyeValues.length > 0
-      ? eyeValues.reduce((sum, value) => sum + value, 0) / eyeValues.length
-      : null;
+  if (!values.length) return null;
 
-  const blinkRate = blinkEvents.length * (60_000 / WINDOW_MS);
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
+}
 
-  const averageBlinkDuration =
-    blinkEvents.length > 0
-      ? blinkEvents.reduce((sum, event) => sum + event.duration, 0) /
-        blinkEvents.length
-      : null;
+function averageBlinkDuration() {
+  if (!blinkEvents.length) return null;
 
-  return {
-    eyeOpenness: averageEyeOpenness,
-    blinkRate,
-    blinkDuration: averageBlinkDuration,
-  };
+  return (
+    blinkEvents.reduce((sum, event) => sum + event.duration, 0) /
+    blinkEvents.length
+  );
+}
+
+function averageFaceSize() {
+  if (!samples.length) return null;
+
+  const values = samples
+    .map(sample => sample.faceWidth * sample.faceHeight)
+    .filter(value => Number.isFinite(value));
+
+  if (!values.length) return null;
+
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
+}
+
+function calculateHeadStability() {
+  if (samples.length < 4) return null;
+
+  const movements = [];
+
+  for (let i = 1; i < samples.length; i += 1) {
+    const previous = samples[i - 1];
+    const current = samples[i];
+
+    const dx = current.headCentreX - previous.headCentreX;
+    const dy = current.headCentreY - previous.headCentreY;
+
+    movements.push(Math.sqrt(dx * dx + dy * dy));
+  }
+
+  const averageMovement =
+    movements.reduce((sum, value) => sum + value, 0) / movements.length;
+
+  const stability = 1 - averageMovement * 80;
+
+  return clamp(stability, 0, 1);
+}
+
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
 }
 
 export function resetFeatureWindow() {
