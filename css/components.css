@@ -824,3 +824,71 @@
   border-radius: inherit;
   background: rgba(255, 250, 242, 0.95);
 }
+
+.assessment-result {
+  margin-top: 14px;
+}
+
+.assessment-result-placeholder {
+  margin: 0;
+  padding: 14px;
+  border: 1px dashed var(--line);
+  border-radius: 16px;
+  color: var(--muted);
+  font-size: 0.88rem;
+  text-align: center;
+}
+
+.assessment-score-card {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.assessment-score-card > span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.assessment-score-card > strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 1.8rem;
+  letter-spacing: -0.06em;
+}
+
+.assessment-score-card p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.assessment-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.assessment-metric {
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.assessment-metric span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.assessment-metric strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 0.95rem;
+}
