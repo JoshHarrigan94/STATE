@@ -20,6 +20,14 @@ export const store = {
     framesProcessed: 0,
   },
 
+  session: {
+    status: "idle",
+    startedAt: null,
+    endedAt: null,
+    elapsedMs: 0,
+    samplesRecorded: 0,
+  },
+
   signals: {
     eyeOpenness: null,
     leftEye: null,
