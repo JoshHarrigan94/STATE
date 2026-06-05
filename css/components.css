@@ -508,3 +508,90 @@
   color: var(--muted);
   font-size: 0.76rem;
 }
+
+.pattern-panel {
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 250, 242, 0.92);
+  box-shadow: var(--shadow);
+}
+
+.pattern-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.pattern-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  letter-spacing: -0.04em;
+}
+
+.pattern-status {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: var(--black);
+  color: white;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.pattern-summary {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.pattern-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.pattern-item {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.36);
+}
+
+.pattern-item span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.pattern-item strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 1rem;
+  letter-spacing: -0.03em;
+}
+
+.pattern-item small {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.pattern-strength {
+  overflow: hidden;
+  height: 7px;
+  margin-top: 10px;
+  border-radius: 999px;
+  background: rgba(21, 21, 21, 0.1);
+}
+
+.pattern-strength div {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--black);
+}
