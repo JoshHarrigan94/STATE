@@ -50,6 +50,11 @@ export function renderApp(root, state, actions) {
   root.querySelector("#start-assessment").addEventListener("click", actions.onStartAssessment);
   root.querySelector("#stop-assessment").addEventListener("click", actions.onStopAssessment);
 
+  const reactionTarget = root.querySelector("#reaction-target");
+if (reactionTarget) {
+  reactionTarget.addEventListener("click", actions.onReactionTap);
+}
+
   root.querySelectorAll("[data-assessment-id]").forEach(button => {
     button.addEventListener("click", () => {
       actions.onSelectAssessment(button.dataset.assessmentId);
