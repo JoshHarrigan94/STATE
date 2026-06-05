@@ -1,9 +1,14 @@
+import { renderBaselinePanel } from "./baseline-panel.js";
 import { renderCameraPanel } from "./camera-panel.js";
 import { renderSignalPanel } from "./signal-panel.js";
 import { renderTracePanel, updateTracePanel } from "./trace-panel.js";
 import { renderQualityPanel } from "./quality-panel.js";
 import { renderSessionPanel, formatElapsed } from "./session-panel.js";
-import { formatPercent, formatSignal } from "../utils/format.js";
+import {
+  formatDelta,
+  formatPercent,
+  formatSignal,
+} from "../utils/format.js";
 
 export function renderApp(root, state, actions) {
   root.innerHTML = `
@@ -18,6 +23,7 @@ export function renderApp(root, state, actions) {
         ${renderCameraPanel(state)}
         ${renderSessionPanel(state)}
         ${renderSignalPanel(state)}
+        ${renderBaselinePanel(state)}
         ${renderTracePanel(state)}
         ${renderQualityPanel(state)}
 
@@ -55,6 +61,8 @@ export function updateDynamicUI(state) {
   updateText("#session-status", formatSessionStatus(state.session.status));
   updateText("#session-elapsed", formatElapsed(state.session.elapsedMs));
 
+  updateBaselineUI(state);
+
   const startSessionButton = document.querySelector("#start-session");
   if (startSessionButton) {
     startSessionButton.disabled =
@@ -88,6 +96,42 @@ export function updateDynamicUI(state) {
 
   updateQualityNotes(state);
   updateTracePanel(state);
+}
+
+function updateBaselineUI(state) {
+  updateText("#baseline-progress", `${Math.round(state.baseline.progress * 100)}%`);
+  updateText("#baseline-eye", formatSignal(state.baseline.values.eyeOpenness));
+  updateText("#baseline-blink", formatSignal(state.baseline.values.blinkRate, "/min"));
+  updateText(
+    "#baseline-head-stability",
+    formatPercent(state.baseline.values.headStability)
+  );
+  updateText(
+    "#baseline-expression",
+    formatSignal(state.baseline.values.expressionVariability)
+  );
+
+  updateText(
+    "#delta-eye",
+    formatDelta(state.baseline.deltas.eyeOpennessDelta)
+  );
+  updateText(
+    "#delta-blink",
+    formatDelta(state.baseline.deltas.blinkRateDelta, "/min")
+  );
+  updateText(
+    "#delta-head-stability",
+    formatDelta(state.baseline.deltas.headStabilityDelta)
+  );
+  updateText(
+    "#delta-expression",
+    formatDelta(state.baseline.deltas.expressionVariabilityDelta)
+  );
+
+  const baselineMeter = document.querySelector("#baseline-meter-fill");
+  if (baselineMeter) {
+    baselineMeter.style.width = `${Math.round(state.baseline.progress * 100)}%`;
+  }
 }
 
 function updateQualityNotes(state) {
