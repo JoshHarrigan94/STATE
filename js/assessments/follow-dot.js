@@ -1,3 +1,8 @@
+import {
+  buildFollowDotScore,
+  recordFollowDotSample,
+} from "./follow-dot-score.js";
+
 const DOT_RADIUS = 12;
 
 let dot = {
@@ -21,12 +26,16 @@ export function updateFollowDot(store) {
   dot.x = 50 + Math.sin(elapsed * 0.9) * 34;
   dot.y = 50 + Math.cos(elapsed * 1.25) * 28;
 
+  recordFollowDotSample(store);
+
   store.assessment.result = {
     type: "follow-dot",
     dotX: dot.x,
     dotY: dot.y,
     targetRadius: DOT_RADIUS,
-    instruction: "Follow the dot with your eyes. Keep your head as still as possible.",
+    instruction:
+      "Follow the dot with your eyes. Keep your head as still as possible.",
+    score: buildFollowDotScore(),
   };
 }
 
