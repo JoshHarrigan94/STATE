@@ -1,5 +1,5 @@
 import { store } from "./state/store.js";
-import { renderApp } from "./ui/render.js";
+import { renderApp, updateDynamicUI } from "./ui/render.js";
 import { createCameraController } from "./capture/camera.js";
 import {
   detectFaceFromVideo,
@@ -17,42 +17,47 @@ const root = document.querySelector("#app");
 
 let cameraController = null;
 let animationFrameId = null;
+let videoElement = null;
 
-function update() {
+function fullRender() {
   renderApp(root, store, {
     onStartCamera: startSystem,
     onReset: resetSystem,
   });
+
+  videoElement = document.querySelector("#camera-feed");
 }
 
 async function startSystem() {
-  const video = document.querySelector("#camera-feed");
+  if (store.camera.status === "active" || store.camera.status === "starting") {
+    return;
+  }
 
   store.camera.status = "starting";
   store.camera.error = null;
   store.vision.status = "loading";
   store.vision.error = null;
-  update();
+  fullRender();
 
   try {
-    cameraController = createCameraController(video);
+    cameraController = createCameraController(videoElement);
     await cameraController.start();
 
     store.camera.status = "active";
-    update();
+    updateDynamicUI(store);
 
     await loadFaceLandmarker();
 
     store.vision.status = "active";
-    update();
+    updateDynamicUI(store);
 
-    startVisionLoop(video);
+    startVisionLoop(videoElement);
   } catch (error) {
     store.camera.status = "error";
     store.camera.error = error.message;
     store.vision.status = "error";
     store.vision.error = error.message;
-    update();
+    fullRender();
   }
 }
 
@@ -88,9 +93,10 @@ function startVisionLoop(video) {
       store.quality.signalQuality = quality.signalQuality;
       store.quality.confidence = quality.confidence;
       store.quality.notes = quality.notes;
+
+      updateDynamicUI(store);
     }
 
-    update();
     animationFrameId = requestAnimationFrame(loop);
   }
 
@@ -136,7 +142,7 @@ function resetSystem() {
   store.quality.confidence = 0;
   store.quality.notes = [];
 
-  update();
+  fullRender();
 }
 
-update();
+fullRender();
