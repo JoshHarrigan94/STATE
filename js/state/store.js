@@ -28,11 +28,13 @@ export const store = {
     blinkDuration: null,
     headStability: null,
     headTilt: null,
+    faceSize: null,
     expressionVariability: null,
   },
 
   quality: {
     signalQuality: 0,
     confidence: 0,
+    notes: [],
   },
 };
