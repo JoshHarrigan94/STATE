@@ -12,6 +12,14 @@ export const store = {
     error: null,
   },
 
+  vision: {
+    status: "not-loaded",
+    error: null,
+    faceDetected: false,
+    faceCount: 0,
+    framesProcessed: 0,
+  },
+
   signals: {
     eyeOpenness: null,
     blinkRate: null,
