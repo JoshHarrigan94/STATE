@@ -25,6 +25,8 @@ function fullRender() {
   renderApp(root, store, {
     onStartCamera: startSystem,
     onReset: resetSystem,
+    onStartSession: startSession,
+    onStopSession: stopSession,
   });
 
   videoElement = document.querySelector("#camera-feed");
@@ -61,6 +63,29 @@ async function startSystem() {
     store.vision.error = error.message;
     fullRender();
   }
+}
+
+function startSession() {
+  if (store.camera.status !== "active") return;
+
+  store.session.status = "recording";
+  store.session.startedAt = performance.now();
+  store.session.endedAt = null;
+  store.session.elapsedMs = 0;
+  store.session.samplesRecorded = 0;
+  store.trace.points = [];
+
+  updateDynamicUI(store);
+}
+
+function stopSession() {
+  if (store.session.status !== "recording") return;
+
+  store.session.status = "complete";
+  store.session.endedAt = performance.now();
+  store.session.elapsedMs = store.session.endedAt - store.session.startedAt;
+
+  updateDynamicUI(store);
 }
 
 function startVisionLoop(video) {
@@ -148,7 +173,14 @@ function startVisionLoop(video) {
       );
 
       store.quality.notes = quality.notes;
-            pushTracePoint();
+
+      updateSessionTiming();
+
+      if (store.session.status === "recording") {
+        pushTracePoint();
+        store.session.samplesRecorded += 1;
+      }
+
       updateDynamicUI(store);
     }
 
@@ -156,6 +188,12 @@ function startVisionLoop(video) {
   }
 
   loop();
+}
+
+function updateSessionTiming() {
+  if (store.session.status !== "recording") return;
+
+  store.session.elapsedMs = performance.now() - store.session.startedAt;
 }
 
 function pushTracePoint() {
@@ -197,6 +235,12 @@ function resetSystem() {
   store.vision.faceCount = 0;
   store.vision.framesProcessed = 0;
 
+  store.session.status = "idle";
+  store.session.startedAt = null;
+  store.session.endedAt = null;
+  store.session.elapsedMs = 0;
+  store.session.samplesRecorded = 0;
+
   store.signals.eyeOpenness = null;
   store.signals.leftEye = null;
   store.signals.rightEye = null;
@@ -214,7 +258,9 @@ function resetSystem() {
   store.quality.signalQuality = 0;
   store.quality.confidence = 0;
   store.quality.notes = [];
-    store.trace.points = [];
+
+  store.trace.points = [];
+
   fullRender();
 }
 
