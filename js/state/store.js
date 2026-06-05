@@ -60,6 +60,13 @@ export const store = {
     sampleCount: 0,
   },
 
+  pattern: {
+    status: "waiting",
+    primaryLabel: "Waiting for baseline",
+    summary: "Pattern labels will unlock after the neutral reference window is captured.",
+    labels: [],
+  },
+
   calibration: {
     sampleCount: 0,
     smoothingAlpha: 0.22,
