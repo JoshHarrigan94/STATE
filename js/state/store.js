@@ -38,6 +38,11 @@ export const store = {
     windowSeconds: 10,
   },
 
+  trace: {
+    maxPoints: 160,
+    points: [],
+  },
+
   quality: {
     signalQuality: 0,
     confidence: 0,
