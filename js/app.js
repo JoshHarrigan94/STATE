@@ -83,6 +83,7 @@ function startVisionLoop(video) {
       store.signals.headStability = features.headStability;
       store.signals.headTilt = features.headTilt;
       store.signals.faceSize = features.faceSize;
+      store.signals.expressionVariability = features.expressionVariability;
 
       store.quality.signalQuality = quality.signalQuality;
       store.quality.confidence = quality.confidence;
