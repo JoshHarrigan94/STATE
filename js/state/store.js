@@ -66,6 +66,14 @@ export const store = {
     summary: "Pattern labels will unlock after the neutral reference window is captured.",
     labels: [],
   },
+  
+  summary: {
+  ready: false,
+  title: "Waiting for session",
+  summary:
+    "Complete a session to generate a behavioural signal summary.",
+  confidence: null,
+},
 
   calibration: {
     sampleCount: 0,
