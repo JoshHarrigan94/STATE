@@ -12,7 +12,7 @@ The goal is to prove that a browser-based camera can extract stable behavioural 
 
 ## Current Build Stage
 
-Pass 9: Smoothing and calibration visibility.
+Pass 10: Live signal trace graph.
 
 ## Core Pipeline
 
@@ -28,6 +28,7 @@ Camera
 → Expression variability  
 → Rolling feature window  
 → Signal smoothing  
+→ Signal trace graph  
 → Signal quality  
 → Confidence  
 
@@ -53,6 +54,7 @@ Camera
 - Rolling window duration
 - Smoothing alpha
 - Samples in active window
+- Live trace graph
 
 ## Important Boundary
 
