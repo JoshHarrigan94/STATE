@@ -4,7 +4,7 @@ export function formatSignal(value, suffix = "") {
   }
 
   if (typeof value === "number") {
-    return `${value.toFixed(2)}${suffix}`;
+    return `${value.toFixed(3)}${suffix}`;
   }
 
   return `${value}${suffix}`;
