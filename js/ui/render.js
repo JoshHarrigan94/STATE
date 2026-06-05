@@ -1,3 +1,6 @@
+import {
+  renderSessionSummaryPanel,
+} from "./session-summary-panel.js";
 import { renderBaselinePanel } from "./baseline-panel.js";
 import { renderCameraPanel } from "./camera-panel.js";
 import { renderPatternList, renderPatternPanel } from "./pattern-panel.js";
@@ -26,6 +29,7 @@ export function renderApp(root, state, actions) {
         ${renderSignalPanel(state)}
         ${renderBaselinePanel(state)}
         ${renderPatternPanel(state)}
+        ${renderSessionSummaryPanel(state)}
         ${renderTracePanel(state)}
         ${renderQualityPanel(state)}
 
@@ -52,7 +56,24 @@ export function updateDynamicUI(state) {
     "#signal-expression-variability",
     formatSignal(state.signals.expressionVariability)
   );
+  updateText(
+  "#summary-title",
+  state.summary.title
+);
 
+updateText(
+  "#summary-text",
+  state.summary.summary
+);
+
+updateText(
+  "#summary-confidence",
+  state.summary.confidence
+    ? `${Math.round(
+        state.summary.confidence
+      )}%`
+    : "—"
+);
   updateText("#diagnostic-confidence", `${Math.round(state.quality.confidence)}%`);
   updateText("#diagnostic-camera", formatStatus(state.camera.status));
   updateText("#diagnostic-vision", formatStatus(state.vision.status));
