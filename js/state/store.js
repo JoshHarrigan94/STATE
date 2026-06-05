@@ -32,6 +32,12 @@ export const store = {
     expressionVariability: null,
   },
 
+  calibration: {
+    sampleCount: 0,
+    smoothingAlpha: 0.22,
+    windowSeconds: 10,
+  },
+
   quality: {
     signalQuality: 0,
     confidence: 0,
