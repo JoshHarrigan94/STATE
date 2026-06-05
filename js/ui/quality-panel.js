@@ -30,6 +30,25 @@ export function renderQualityPanel(state) {
         ${diagnosticItem("Frames", "diagnostic-frames", state.vision.framesProcessed)}
       </div>
 
+      <div class="calibration-card">
+        <p class="eyebrow">Calibration</p>
+
+        <div class="calibration-row">
+          <span>Rolling window</span>
+          <strong id="calibration-window">${state.calibration.windowSeconds}s</strong>
+        </div>
+
+        <div class="calibration-row">
+          <span>Smoothing alpha</span>
+          <strong id="calibration-alpha">${state.calibration.smoothingAlpha}</strong>
+        </div>
+
+        <div class="calibration-row">
+          <span>Samples in window</span>
+          <strong id="calibration-samples">${state.calibration.sampleCount}</strong>
+        </div>
+      </div>
+
       <div class="quality-notes">
         <p class="eyebrow">Quality Notes</p>
         <div id="quality-notes-content">
