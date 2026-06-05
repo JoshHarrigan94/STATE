@@ -1,3 +1,4 @@
+import { renderSessionSummaryPanel } from "./session-summary-panel.js";
 import { renderAssessmentPanel } from "./assessment-panel.js";
 import {
   renderAssessmentStage,
@@ -33,6 +34,7 @@ export function renderApp(root, state, actions) {
         ${renderSignalPanel(state)}
         ${renderBaselinePanel(state)}
         ${renderPatternPanel(state)}
+        ${renderSessionSummaryPanel(state)}
         ${renderTracePanel(state)}
         ${renderQualityPanel(state)}
 
