@@ -1,6 +1,7 @@
 import { renderCameraPanel } from "./camera-panel.js";
 import { renderSignalPanel } from "./signal-panel.js";
 import { renderQualityPanel } from "./quality-panel.js";
+import { renderTracePanel, updateTracePanel } from "./trace-panel.js";
 import { formatPercent, formatSignal } from "../utils/format.js";
 
 export function renderApp(root, state, actions) {
@@ -15,6 +16,7 @@ export function renderApp(root, state, actions) {
       <section class="section-stack">
         ${renderCameraPanel(state)}
         ${renderSignalPanel(state)}
+        ${renderTracePanel(state)}
         ${renderQualityPanel(state)}
 
         <div class="status-strip" id="status-strip">
@@ -62,10 +64,12 @@ export function updateDynamicUI(state) {
     overlay.remove();
   }
 
-    updateText("#calibration-window", `${state.calibration.windowSeconds}s`);
+  updateText("#calibration-window", `${state.calibration.windowSeconds}s`);
   updateText("#calibration-alpha", state.calibration.smoothingAlpha);
   updateText("#calibration-samples", state.calibration.sampleCount);
+
   updateQualityNotes(state);
+  updateTracePanel(state);
 }
 
 function updateQualityNotes(state) {
