@@ -48,6 +48,38 @@ const root = document.querySelector("#app");
 let cameraController = null;
 let animationFrameId = null;
 let videoElement = null;
+let appTickerId = null;
+
+function startAppTicker() {
+  cancelAppTicker();
+
+  function tick() {
+    updateSessionTiming();
+    updateAssessmentTiming(store);
+
+    updateFollowDot(store);
+    updateReactionTest(store);
+
+    if (store.session.status === "recording") {
+      store.pattern = generatePatternLabels(store);
+      store.summary = buildSessionSummary(store);
+    }
+
+    updateDynamicUI(store);
+
+    appTickerId = requestAnimationFrame(tick);
+  }
+
+  tick();
+}
+
+function cancelAppTicker() {
+  if (!appTickerId) return;
+
+  cancelAnimationFrame(appTickerId);
+  appTickerId = null;
+}
+
 
 function fullRender() {
   renderApp(root, store, {
@@ -97,6 +129,8 @@ async function startSystem() {
     updateDynamicUI(store);
 
     startVisionLoop(videoElement);
+    
+    startAppTicker();
   } catch (error) {
     store.camera.status = "error";
     store.camera.error = error.message;
@@ -262,10 +296,7 @@ function startVisionLoop(video) {
 
       store.quality.notes = quality.notes;
 
-      updateSessionTiming();
-      updateAssessmentTiming(store);
-      updateFollowDot(store);
-      updateReactionTest(store);
+      
       updateBaseline();
             store.pattern = generatePatternLabels(store);
             store.summary =
@@ -356,6 +387,7 @@ function cancelVisionLoop() {
 }
 
 function resetSystem() {
+  cancelAppTicker();
   cancelVisionLoop();
   resetFeatureWindow();
   resetSmoothing();
