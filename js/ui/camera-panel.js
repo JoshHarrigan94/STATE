@@ -17,7 +17,7 @@ export function renderCameraPanel(state) {
         ${
           !isActive
             ? `
-              <div class="camera-overlay">
+              <div id="camera-overlay" class="camera-overlay">
                 <div class="camera-placeholder">
                   <strong>${getCameraTitle(state)}</strong>
                   <span>${getCameraMessage(state)}</span>
@@ -27,15 +27,12 @@ export function renderCameraPanel(state) {
             : ""
         }
 
-        ${
-          isActive
-            ? `
-              <div class="face-status-pill ${state.vision.faceDetected ? "is-detected" : ""}">
-                ${state.vision.faceDetected ? "Face detected" : "Searching for face"}
-              </div>
-            `
-            : ""
-        }
+        <div 
+          id="face-status-pill"
+          class="face-status-pill ${state.vision.faceDetected ? "is-detected" : ""}"
+        >
+          ${state.vision.faceDetected ? "Face detected" : "Searching for face"}
+        </div>
       </div>
 
       ${
@@ -52,7 +49,7 @@ export function renderCameraPanel(state) {
         <button 
           id="start-camera" 
           class="primary-button"
-          ${isStarting ? "disabled" : ""}
+          ${isStarting || isActive ? "disabled" : ""}
         >
           ${getButtonLabel(state)}
         </button>
@@ -90,5 +87,6 @@ function getCameraMessage(state) {
 function getButtonLabel(state) {
   if (state.camera.status === "starting") return "Starting...";
   if (state.vision.status === "loading") return "Loading model...";
+  if (state.camera.status === "active") return "Camera Active";
   return "Start Camera";
 }
