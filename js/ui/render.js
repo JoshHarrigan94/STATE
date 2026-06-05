@@ -1,5 +1,6 @@
 import { renderBaselinePanel } from "./baseline-panel.js";
 import { renderCameraPanel } from "./camera-panel.js";
+import { renderPatternList, renderPatternPanel } from "./pattern-panel.js";
 import { renderSignalPanel } from "./signal-panel.js";
 import { renderTracePanel, updateTracePanel } from "./trace-panel.js";
 import { renderQualityPanel } from "./quality-panel.js";
@@ -24,6 +25,7 @@ export function renderApp(root, state, actions) {
         ${renderSessionPanel(state)}
         ${renderSignalPanel(state)}
         ${renderBaselinePanel(state)}
+        ${renderPatternPanel(state)}
         ${renderTracePanel(state)}
         ${renderQualityPanel(state)}
 
@@ -62,6 +64,7 @@ export function updateDynamicUI(state) {
   updateText("#session-elapsed", formatElapsed(state.session.elapsedMs));
 
   updateBaselineUI(state);
+  updatePatternUI(state);
 
   const startSessionButton = document.querySelector("#start-session");
   if (startSessionButton) {
@@ -96,6 +99,17 @@ export function updateDynamicUI(state) {
 
   updateQualityNotes(state);
   updateTracePanel(state);
+}
+
+function updatePatternUI(state) {
+  updateText("#pattern-primary", state.pattern.primaryLabel);
+  updateText("#pattern-status", formatPatternStatus(state.pattern.status));
+  updateText("#pattern-summary", state.pattern.summary);
+
+  const list = document.querySelector("#pattern-list");
+  if (list) {
+    list.innerHTML = renderPatternList(state.pattern.labels);
+  }
 }
 
 function updateBaselineUI(state) {
@@ -175,6 +189,14 @@ function formatSessionStatus(status) {
   if (status === "idle") return "Ready";
   if (status === "recording") return "Recording";
   if (status === "complete") return "Complete";
+
+  return status;
+}
+
+function formatPatternStatus(status) {
+  if (status === "waiting") return "Waiting";
+  if (status === "stable") return "Stable";
+  if (status === "active") return "Active";
 
   return status;
 }
