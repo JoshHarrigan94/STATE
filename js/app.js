@@ -49,16 +49,29 @@ let cameraController = null;
 let animationFrameId = null;
 let videoElement = null;
 
-renderApp(root, store, {
-  onStartCamera: startSystem,
-  onReset: resetSystem,
-  onStartSession: startSession,
-  onStopSession: stopSession,
-  onSelectAssessment: handleSelectAssessment,
-  onStartAssessment: handleStartAssessment,
-  onStopAssessment: handleStopAssessment,
-  onReactionTap: handleReactionTargetTap,
-});
+function fullRender() {
+  renderApp(root, store, {
+    onStartCamera: startSystem,
+    onReset: resetSystem,
+    onStartSession: startSession,
+    onStopSession: stopSession,
+    onSelectAssessment: handleSelectAssessment,
+    onStartAssessment: handleStartAssessment,
+    onStopAssessment: handleStopAssessment,
+    onReactionTap: handleReactionTargetTap,
+  });
+
+  videoElement = document.querySelector("#camera-feed");
+
+  if (
+    store.camera.status === "active" &&
+    cameraController?.getStream &&
+    videoElement
+  ) {
+    videoElement.srcObject = cameraController.getStream();
+    videoElement.play();
+  }
+}
 
   videoElement = document.querySelector("#camera-feed");
 }
