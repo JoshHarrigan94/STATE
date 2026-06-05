@@ -19,9 +19,19 @@ export function renderCameraPanel(state) {
             ? `
               <div class="camera-overlay">
                 <div class="camera-placeholder">
-                  <strong>${getCameraTitle(state.camera.status)}</strong>
-                  <span>${getCameraMessage(state.camera.status)}</span>
+                  <strong>${getCameraTitle(state)}</strong>
+                  <span>${getCameraMessage(state)}</span>
                 </div>
+              </div>
+            `
+            : ""
+        }
+
+        ${
+          isActive
+            ? `
+              <div class="face-status-pill ${state.vision.faceDetected ? "is-detected" : ""}">
+                ${state.vision.faceDetected ? "Face detected" : "Searching for face"}
               </div>
             `
             : ""
@@ -44,7 +54,7 @@ export function renderCameraPanel(state) {
           class="primary-button"
           ${isStarting ? "disabled" : ""}
         >
-          ${isStarting ? "Starting..." : "Start Camera"}
+          ${getButtonLabel(state)}
         </button>
 
         <button id="reset-app" class="secondary-button">
@@ -55,20 +65,30 @@ export function renderCameraPanel(state) {
   `;
 }
 
-function getCameraTitle(status) {
-  if (status === "starting") return "Starting camera";
-  if (status === "error") return "Camera unavailable";
+function getCameraTitle(state) {
+  if (state.camera.status === "starting") return "Starting camera";
+  if (state.camera.status === "error") return "Camera unavailable";
   return "Camera inactive";
 }
 
-function getCameraMessage(status) {
-  if (status === "starting") {
+function getCameraMessage(state) {
+  if (state.camera.status === "starting") {
+    if (state.vision.status === "loading") {
+      return "Opening camera and preparing the face model.";
+    }
+
     return "Requesting permission and opening the front camera.";
   }
 
-  if (status === "error") {
+  if (state.camera.status === "error") {
     return "Check browser permission, HTTPS, and GitHub Pages deployment.";
   }
 
   return "Press start to open the live preview.";
+}
+
+function getButtonLabel(state) {
+  if (state.camera.status === "starting") return "Starting...";
+  if (state.vision.status === "loading") return "Loading model...";
+  return "Start Camera";
 }
