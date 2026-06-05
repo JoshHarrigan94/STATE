@@ -9,3 +9,11 @@ export function formatSignal(value, suffix = "") {
 
   return `${value}${suffix}`;
 }
+
+export function formatPercent(value) {
+  if (value === null || value === undefined || Number.isNaN(value)) {
+    return "—";
+  }
+
+  return `${Math.round(value * 100)}%`;
+}
