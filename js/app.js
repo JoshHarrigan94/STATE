@@ -1,3 +1,11 @@
+
+import {
+  resetAssessment,
+  selectAssessment,
+  startAssessment,
+  stopAssessment,
+  updateAssessmentTiming,
+} from "./assessments/assessment-router.js";
 import {
   buildSessionSummary,
 } from "./engine/session-summary-engine.js";
@@ -33,11 +41,14 @@ let videoElement = null;
 
 function fullRender() {
   renderApp(root, store, {
-    onStartCamera: startSystem,
-    onReset: resetSystem,
-    onStartSession: startSession,
-    onStopSession: stopSession,
-  });
+  onStartCamera: startSystem,
+  onReset: resetSystem,
+  onStartSession: startSession,
+  onStopSession: stopSession,
+  onSelectAssessment: handleSelectAssessment,
+  onStartAssessment: handleStartAssessment,
+  onStopAssessment: handleStopAssessment,
+});
 
   videoElement = document.querySelector("#camera-feed");
 }
@@ -73,6 +84,30 @@ async function startSystem() {
     store.vision.error = error.message;
     fullRender();
   }
+}
+
+function handleSelectAssessment(assessmentId) {
+  if (store.assessment.status === "running") return;
+
+  selectAssessment(store, assessmentId);
+  fullRender();
+}
+
+function handleStartAssessment() {
+  if (store.camera.status !== "active") return;
+
+  startAssessment(store);
+
+  if (store.session.status !== "recording") {
+    startSession();
+  }
+
+  updateDynamicUI(store);
+}
+
+function handleStopAssessment() {
+  stopAssessment(store);
+  updateDynamicUI(store);
 }
 
 function startSession() {
@@ -191,6 +226,7 @@ function startVisionLoop(video) {
       store.quality.notes = quality.notes;
 
       updateSessionTiming();
+      updateAssessmentTiming(store);
       updateBaseline();
             store.pattern = generatePatternLabels(store);
             store.summary =
@@ -330,6 +366,8 @@ function resetSystem() {
   store.quality.notes = [];
 
   store.trace.points = [];
+
+  resetAssessment(store);
 
   fullRender();
 }
