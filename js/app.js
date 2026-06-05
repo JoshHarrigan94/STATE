@@ -12,6 +12,8 @@ import {
   resetFeatureWindow,
   updateFeatureWindow,
 } from "./engine/feature-window.js";
+import { config } from "./config/config.js";
+import { resetSmoothing, smoothValue } from "./utils/smoothing.js";
 
 const root = document.querySelector("#app");
 
@@ -78,20 +80,73 @@ function startVisionLoop(video) {
       store.vision.framesProcessed += 1;
 
       if (rawSignals) {
-        store.signals.leftEye = rawSignals.leftEye;
-        store.signals.rightEye = rawSignals.rightEye;
+        store.signals.leftEye = smoothValue(
+          "leftEye",
+          rawSignals.leftEye,
+          config.smoothing.alpha
+        );
+
+        store.signals.rightEye = smoothValue(
+          "rightEye",
+          rawSignals.rightEye,
+          config.smoothing.alpha
+        );
       }
 
-      store.signals.eyeOpenness = features.eyeOpenness;
-      store.signals.blinkRate = features.blinkRate;
-      store.signals.blinkDuration = features.blinkDuration;
-      store.signals.headStability = features.headStability;
-      store.signals.headTilt = features.headTilt;
-      store.signals.faceSize = features.faceSize;
-      store.signals.expressionVariability = features.expressionVariability;
+      store.signals.eyeOpenness = smoothValue(
+        "eyeOpenness",
+        features.eyeOpenness,
+        config.smoothing.alpha
+      );
 
-      store.quality.signalQuality = quality.signalQuality;
-      store.quality.confidence = quality.confidence;
+      store.signals.blinkRate = features.blinkRate;
+
+      store.signals.blinkDuration = smoothValue(
+        "blinkDuration",
+        features.blinkDuration,
+        config.smoothing.alpha
+      );
+
+      store.signals.headStability = smoothValue(
+        "headStability",
+        features.headStability,
+        config.smoothing.alpha
+      );
+
+      store.signals.headTilt = smoothValue(
+        "headTilt",
+        features.headTilt,
+        config.smoothing.alpha
+      );
+
+      store.signals.faceSize = smoothValue(
+        "faceSize",
+        features.faceSize,
+        config.smoothing.alpha
+      );
+
+      store.signals.expressionVariability = smoothValue(
+        "expressionVariability",
+        features.expressionVariability,
+        config.smoothing.alpha
+      );
+
+      store.calibration.sampleCount = features.sampleCount;
+      store.calibration.smoothingAlpha = config.smoothing.alpha;
+      store.calibration.windowSeconds = config.features.windowMs / 1000;
+
+      store.quality.signalQuality = smoothValue(
+        "signalQuality",
+        quality.signalQuality,
+        config.smoothing.alpha
+      );
+
+      store.quality.confidence = smoothValue(
+        "confidence",
+        quality.confidence,
+        config.smoothing.alpha
+      );
+
       store.quality.notes = quality.notes;
 
       updateDynamicUI(store);
@@ -113,6 +168,7 @@ function cancelVisionLoop() {
 function resetSystem() {
   cancelVisionLoop();
   resetFeatureWindow();
+  resetSmoothing();
 
   if (cameraController) {
     cameraController.stop();
@@ -137,6 +193,10 @@ function resetSystem() {
   store.signals.headTilt = null;
   store.signals.faceSize = null;
   store.signals.expressionVariability = null;
+
+  store.calibration.sampleCount = 0;
+  store.calibration.smoothingAlpha = config.smoothing.alpha;
+  store.calibration.windowSeconds = config.features.windowMs / 1000;
 
   store.quality.signalQuality = 0;
   store.quality.confidence = 0;
