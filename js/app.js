@@ -7,6 +7,7 @@ import {
   loadFaceLandmarker,
 } from "./vision/face-landmarker.js";
 import { extractFaceSignals } from "./vision/face-signals.js";
+import { assessFaceQuality } from "./vision/face-quality.js";
 import {
   resetFeatureWindow,
   updateFeatureWindow,
@@ -65,6 +66,7 @@ function startVisionLoop(video) {
       const faceDetected = hasDetectedFace(result);
       const rawSignals = extractFaceSignals(result);
       const features = updateFeatureWindow(rawSignals);
+      const quality = assessFaceQuality(result, rawSignals);
 
       store.vision.faceDetected = faceDetected;
       store.vision.faceCount = result.faceLandmarks?.length || 0;
@@ -78,9 +80,13 @@ function startVisionLoop(video) {
       store.signals.eyeOpenness = features.eyeOpenness;
       store.signals.blinkRate = features.blinkRate;
       store.signals.blinkDuration = features.blinkDuration;
+      store.signals.headStability = features.headStability;
+      store.signals.headTilt = features.headTilt;
+      store.signals.faceSize = features.faceSize;
 
-      store.quality.signalQuality = faceDetected ? 45 : 0;
-      store.quality.confidence = faceDetected ? 35 : 0;
+      store.quality.signalQuality = quality.signalQuality;
+      store.quality.confidence = quality.confidence;
+      store.quality.notes = quality.notes;
     }
 
     update();
@@ -122,10 +128,12 @@ function resetSystem() {
   store.signals.blinkDuration = null;
   store.signals.headStability = null;
   store.signals.headTilt = null;
+  store.signals.faceSize = null;
   store.signals.expressionVariability = null;
 
   store.quality.signalQuality = 0;
   store.quality.confidence = 0;
+  store.quality.notes = [];
 
   update();
 }
