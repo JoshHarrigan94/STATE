@@ -1,4 +1,5 @@
 import { getAssessmentById } from "../assessments/assessment-store.js";
+import { formatSignal } from "../utils/format.js";
 import { formatElapsed } from "./session-panel.js";
 
 export function renderAssessmentStage(state) {
@@ -33,6 +34,10 @@ export function renderAssessmentStage(state) {
         ${renderAssessmentTarget(assessment.id, state)}
       </div>
 
+      <div id="assessment-result" class="assessment-result">
+        ${renderAssessmentResult(state)}
+      </div>
+
       <div class="assessment-actions">
         <button
           id="start-assessment"
@@ -55,8 +60,17 @@ export function renderAssessmentStage(state) {
 }
 
 export function updateAssessmentStage(state) {
-  if (state.assessment.activeId !== "follow-dot") return;
+  if (state.assessment.activeId === "follow-dot") {
+    updateFollowDotStage(state);
+  }
 
+  const result = document.querySelector("#assessment-result");
+  if (result) {
+    result.innerHTML = renderAssessmentResult(state);
+  }
+}
+
+function updateFollowDotStage(state) {
   const dot = document.querySelector("#follow-dot-target");
   if (!dot) return;
 
@@ -86,6 +100,66 @@ function renderAssessmentTarget(id, state) {
   return `
     <div class="assessment-target-placeholder">
       ${getPlaceholderText(id)}
+    </div>
+  `;
+}
+
+function renderAssessmentResult(state) {
+  const result = state.assessment.result;
+
+  if (!result || result.type !== "follow-dot") {
+    return `
+      <p class="assessment-result-placeholder">
+        Assessment result will appear here.
+      </p>
+    `;
+  }
+
+  const score = result.score;
+
+  if (!score?.ready) {
+    return `
+      <article class="assessment-score-card">
+        <span>Follow The Dot</span>
+        <strong>${score.label}</strong>
+        <p>${score.detail}</p>
+      </article>
+    `;
+  }
+
+  return `
+    <article class="assessment-score-card">
+      <span>Follow The Dot Score</span>
+      <strong>${Math.round(score.score)}%</strong>
+      <p>${score.label}. ${score.detail}</p>
+
+      <div class="assessment-metrics">
+        ${metricItem(
+          "Head Stability",
+          formatSignal(score.metrics.averageHeadStability)
+        )}
+        ${metricItem(
+          "Blink Rate",
+          formatSignal(score.metrics.averageBlinkRate, "/min")
+        )}
+        ${metricItem(
+          "Eye Openness",
+          formatSignal(score.metrics.averageEyeOpenness)
+        )}
+        ${metricItem(
+          "Expression",
+          formatSignal(score.metrics.averageExpressionVariability)
+        )}
+      </div>
+    </article>
+  `;
+}
+
+function metricItem(label, value) {
+  return `
+    <div class="assessment-metric">
+      <span>${label}</span>
+      <strong>${value}</strong>
     </div>
   `;
 }
