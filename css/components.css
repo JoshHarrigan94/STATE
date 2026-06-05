@@ -595,3 +595,57 @@
   border-radius: inherit;
   background: var(--black);
 }
+
+.summary-panel {
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background:
+    rgba(
+      255,
+      250,
+      242,
+      0.92
+    );
+  box-shadow: var(--shadow);
+}
+
+.summary-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.summary-header h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  letter-spacing: -0.04em;
+}
+
+.summary-confidence {
+  min-width: 84px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: var(--black);
+  color: white;
+  text-align: center;
+}
+
+.summary-confidence span {
+  display: block;
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+
+.summary-confidence small {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.68rem;
+  opacity: 0.7;
+}
+
+.summary-text {
+  margin-top: 14px;
+  color: var(--muted);
+  line-height: 1.6;
+}
