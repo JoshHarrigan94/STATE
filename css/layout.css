@@ -1,0 +1,46 @@
+.app-shell {
+  width: min(100%, 560px);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 22px;
+}
+
+.hero {
+  padding: 28px 0 22px;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: clamp(3.4rem, 16vw, 6rem);
+  line-height: 0.86;
+  letter-spacing: -0.09em;
+}
+
+.hero-subtitle {
+  margin: 14px 0 0;
+  max-width: 32rem;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.section-stack {
+  display: grid;
+  gap: 16px;
+}
+
+.signal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 460px) {
+  .app-shell {
+    padding: 16px;
+  }
+
+  .signal-grid {
+    grid-template-columns: 1fr;
+  }
+}
