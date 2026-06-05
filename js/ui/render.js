@@ -62,6 +62,9 @@ export function updateDynamicUI(state) {
     overlay.remove();
   }
 
+    updateText("#calibration-window", `${state.calibration.windowSeconds}s`);
+  updateText("#calibration-alpha", state.calibration.smoothingAlpha);
+  updateText("#calibration-samples", state.calibration.sampleCount);
   updateQualityNotes(state);
 }
 
