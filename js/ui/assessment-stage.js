@@ -26,10 +26,11 @@ export function renderAssessmentStage(state) {
         ${assessment.description}
       </p>
 
-      <div id="assessment-target" class="assessment-target">
-        <div class="assessment-target-placeholder">
-          ${getPlaceholderText(assessment.id)}
-        </div>
+      <div 
+        id="assessment-target" 
+        class="assessment-target ${assessment.id === "follow-dot" ? "follow-dot-stage" : ""}"
+      >
+        ${renderAssessmentTarget(assessment.id, state)}
       </div>
 
       <div class="assessment-actions">
@@ -53,8 +54,43 @@ export function renderAssessmentStage(state) {
   `;
 }
 
+export function updateAssessmentStage(state) {
+  if (state.assessment.activeId !== "follow-dot") return;
+
+  const dot = document.querySelector("#follow-dot-target");
+  if (!dot) return;
+
+  const result = state.assessment.result;
+
+  if (!result || result.type !== "follow-dot") return;
+
+  dot.style.left = `${result.dotX}%`;
+  dot.style.top = `${result.dotY}%`;
+}
+
+function renderAssessmentTarget(id, state) {
+  if (id === "follow-dot") {
+    return `
+      <div class="follow-dot-instructions">
+        Keep your head still. Track the dot with your eyes.
+      </div>
+
+      <div
+        id="follow-dot-target"
+        class="follow-dot-target"
+        style="left: 50%; top: 50%;"
+      ></div>
+    `;
+  }
+
+  return `
+    <div class="assessment-target-placeholder">
+      ${getPlaceholderText(id)}
+    </div>
+  `;
+}
+
 function getPlaceholderText(id) {
-  if (id === "follow-dot") return "Follow the dot test will render here.";
   if (id === "reaction-test") return "Reaction stimulus will render here.";
   if (id === "reading-focus") return "Reading passage will render here.";
   if (id === "stillness-test") return "Stillness target will render here.";
