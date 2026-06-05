@@ -1,3 +1,6 @@
+import {
+  buildSessionSummary,
+} from "./engine/session-summary-engine.js";
 import { generatePatternLabels } from "./engine/pattern-engine.js";
 import { store } from "./state/store.js";
 import { renderApp, updateDynamicUI } from "./ui/render.js";
@@ -190,6 +193,8 @@ function startVisionLoop(video) {
       updateSessionTiming();
       updateBaseline();
             store.pattern = generatePatternLabels(store);
+            store.summary =
+  buildSessionSummary(store);
       if (store.session.status === "recording") {
         pushTracePoint();
         store.session.samplesRecorded += 1;
