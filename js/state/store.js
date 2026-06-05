@@ -22,6 +22,8 @@ export const store = {
 
   signals: {
     eyeOpenness: null,
+    leftEye: null,
+    rightEye: null,
     blinkRate: null,
     blinkDuration: null,
     headStability: null,
