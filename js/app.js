@@ -1,4 +1,7 @@
-
+import {
+  resetFollowDot,
+  updateFollowDot,
+} from "./assessments/follow-dot.js";
 import {
   resetAssessment,
   selectAssessment,
@@ -227,6 +230,7 @@ function startVisionLoop(video) {
 
       updateSessionTiming();
       updateAssessmentTiming(store);
+      updateFollowDot(store);
       updateBaseline();
             store.pattern = generatePatternLabels(store);
             store.summary =
@@ -321,6 +325,7 @@ function resetSystem() {
   resetFeatureWindow();
   resetSmoothing();
   resetBaselineEngine();
+  resetFollowDot();
 
   if (cameraController) {
     cameraController.stop();
