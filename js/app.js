@@ -1,3 +1,4 @@
+import { generatePatternLabels } from "./engine/pattern-engine.js";
 import { store } from "./state/store.js";
 import { renderApp, updateDynamicUI } from "./ui/render.js";
 import { createCameraController } from "./capture/camera.js";
@@ -188,7 +189,7 @@ function startVisionLoop(video) {
 
       updateSessionTiming();
       updateBaseline();
-
+            store.pattern = generatePatternLabels(store);
       if (store.session.status === "recording") {
         pushTracePoint();
         store.session.samplesRecorded += 1;
@@ -244,6 +245,14 @@ function resetBaselineState() {
   store.baseline.deltas.expressionVariabilityDelta = null;
 
   store.baseline.sampleCount = 0;
+}
+
+function resetPatternState() {
+  store.pattern.status = "waiting";
+  store.pattern.primaryLabel = "Waiting for baseline";
+  store.pattern.summary =
+    "Pattern labels will unlock after the neutral reference window is captured.";
+  store.pattern.labels = [];
 }
 
 function pushTracePoint() {
@@ -305,6 +314,7 @@ function resetSystem() {
   store.baseline.progress = 0;
   store.baseline.complete = false;
   resetBaselineState();
+    resetPatternState();
 
   store.calibration.sampleCount = 0;
   store.calibration.smoothingAlpha = config.smoothing.alpha;
