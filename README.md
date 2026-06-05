@@ -4,24 +4,47 @@
 
 STATE V1 is a static GitHub Pages prototype for a face-only behavioural signal engine.
 
-## Goal
+## Purpose
 
-V1 focuses on extracting reliable raw signals from the face before attempting any state prediction.
+The goal of V1 is not to diagnose, label, or predict a user's mental state.
 
-## Current Stage
+The goal is to prove that a browser-based camera can extract stable behavioural signals from the face.
 
-Pass 1: Static application shell.
+## Current Build Stage
 
-## Planned Signal Pipeline
+Pass 6: Diagnostic panel and quality notes.
+
+## Core Pipeline
 
 Camera  
+→ MediaPipe Face Landmarker  
 → Face landmarks  
 → Eye openness  
 → Blink detection  
+→ Head tilt  
 → Head stability  
-→ Expression variability  
+→ Face size  
 → Signal quality  
-→ Confidence scoring  
+→ Confidence  
+
+## Current Signals
+
+- Eye openness
+- Blink rate
+- Blink duration
+- Head stability
+- Head tilt
+- Face size
+
+## Current Diagnostics
+
+- Camera status
+- Vision engine status
+- Face detected / searching
+- Frames processed
+- Signal quality
+- Confidence
+- Quality notes
 
 ## Deployment
 
@@ -30,3 +53,9 @@ This project is designed to run directly through GitHub Pages using `index.html`
 No build step.  
 No npm.  
 No backend.
+
+## Important Limitations
+
+STATE V1 is a behavioural signal prototype only.
+
+It does not provide medical, mental health, diagnostic, or clinical conclusions.
