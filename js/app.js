@@ -73,9 +73,6 @@ function fullRender() {
   }
 }
 
-  videoElement = document.querySelector("#camera-feed");
-}
-
 async function startSystem() {
   if (store.camera.status === "active" || store.camera.status === "starting") {
     return;
