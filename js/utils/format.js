@@ -17,3 +17,13 @@ export function formatPercent(value) {
 
   return `${Math.round(value * 100)}%`;
 }
+
+export function formatDelta(value, suffix = "") {
+  if (value === null || value === undefined || Number.isNaN(value)) {
+    return "Δ —";
+  }
+
+  const sign = value > 0 ? "+" : "";
+
+  return `Δ ${sign}${value.toFixed(3)}${suffix}`;
+}
