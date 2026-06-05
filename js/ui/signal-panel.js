@@ -1,4 +1,4 @@
-import { formatSignal } from "../utils/format.js";
+import { formatPercent, formatSignal } from "../utils/format.js";
 
 export function renderSignalPanel(state) {
   return `
@@ -6,9 +6,9 @@ export function renderSignalPanel(state) {
       ${signalCard("Eye Openness", formatSignal(state.signals.eyeOpenness))}
       ${signalCard("Blink Rate", formatSignal(state.signals.blinkRate, "/min"))}
       ${signalCard("Blink Duration", formatSignal(state.signals.blinkDuration, "ms"))}
-      ${signalCard("Left Eye", formatSignal(state.signals.leftEye))}
-      ${signalCard("Right Eye", formatSignal(state.signals.rightEye))}
-      ${signalCard("Head Stability", formatSignal(state.signals.headStability))}
+      ${signalCard("Head Stability", formatPercent(state.signals.headStability))}
+      ${signalCard("Head Tilt", formatSignal(state.signals.headTilt, " rad"))}
+      ${signalCard("Face Size", formatSignal(state.signals.faceSize))}
     </section>
   `;
 }
