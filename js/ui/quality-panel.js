@@ -1,29 +1,67 @@
 export function renderQualityPanel(state) {
+  const notes = state.quality.notes || [];
+
   return `
-    <section class="quality-panel">
-      <article class="quality-card">
-        <p class="eyebrow">Signal Quality</p>
-        <strong>${Math.round(state.quality.signalQuality)}%</strong>
-      </article>
+    <section class="diagnostic-panel">
+      <div class="diagnostic-header">
+        <div>
+          <p class="eyebrow">Diagnostics</p>
+          <h2>Signal Readiness</h2>
+        </div>
 
-      <article class="quality-card">
-        <p class="eyebrow">Confidence</p>
-        <strong>${Math.round(state.quality.confidence)}%</strong>
-      </article>
+        <div class="diagnostic-score">
+          <span>${Math.round(state.quality.confidence)}%</span>
+          <small>confidence</small>
+        </div>
+      </div>
 
-      <article class="quality-card wide-card">
-        <p class="eyebrow">Vision Engine</p>
-        <strong>${formatVisionStatus(state.vision.status)}</strong>
-        <span class="quality-meta">
-          Faces: ${state.vision.faceCount} · Frames: ${state.vision.framesProcessed}
-        </span>
-      </article>
+      <div class="quality-meter">
+        <div 
+          class="quality-meter-fill" 
+          style="width: ${Math.round(state.quality.signalQuality)}%"
+        ></div>
+      </div>
+
+      <div class="diagnostic-grid">
+        ${diagnosticItem("Camera", formatStatus(state.camera.status))}
+        ${diagnosticItem("Vision", formatStatus(state.vision.status))}
+        ${diagnosticItem("Face", state.vision.faceDetected ? "Detected" : "Searching")}
+        ${diagnosticItem("Frames", state.vision.framesProcessed)}
+      </div>
+
+      <div class="quality-notes">
+        <p class="eyebrow">Quality Notes</p>
+        ${
+          notes.length
+            ? `
+              <ul>
+                ${notes.map(note => `<li>${note}</li>`).join("")}
+              </ul>
+            `
+            : `
+              <p class="good-note">
+                Signal conditions are currently acceptable.
+              </p>
+            `
+        }
+      </div>
     </section>
   `;
 }
 
-function formatVisionStatus(status) {
-  if (status === "not-loaded") return "Not Loaded";
+function diagnosticItem(label, value) {
+  return `
+    <article class="diagnostic-item">
+      <span>${label}</span>
+      <strong>${value}</strong>
+    </article>
+  `;
+}
+
+function formatStatus(status) {
+  if (status === "not-loaded") return "Not loaded";
+  if (status === "idle") return "Idle";
+  if (status === "starting") return "Starting";
   if (status === "loading") return "Loading";
   if (status === "active") return "Active";
   if (status === "error") return "Error";
