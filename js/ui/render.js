@@ -1,7 +1,8 @@
 import { renderCameraPanel } from "./camera-panel.js";
 import { renderSignalPanel } from "./signal-panel.js";
-import { renderQualityPanel } from "./quality-panel.js";
 import { renderTracePanel, updateTracePanel } from "./trace-panel.js";
+import { renderQualityPanel } from "./quality-panel.js";
+import { renderSessionPanel, formatElapsed } from "./session-panel.js";
 import { formatPercent, formatSignal } from "../utils/format.js";
 
 export function renderApp(root, state, actions) {
@@ -15,6 +16,7 @@ export function renderApp(root, state, actions) {
 
       <section class="section-stack">
         ${renderCameraPanel(state)}
+        ${renderSessionPanel(state)}
         ${renderSignalPanel(state)}
         ${renderTracePanel(state)}
         ${renderQualityPanel(state)}
@@ -28,6 +30,8 @@ export function renderApp(root, state, actions) {
 
   root.querySelector("#start-camera").addEventListener("click", actions.onStartCamera);
   root.querySelector("#reset-app").addEventListener("click", actions.onReset);
+  root.querySelector("#start-session").addEventListener("click", actions.onStartSession);
+  root.querySelector("#stop-session").addEventListener("click", actions.onStopSession);
 }
 
 export function updateDynamicUI(state) {
@@ -47,6 +51,20 @@ export function updateDynamicUI(state) {
   updateText("#diagnostic-face", state.vision.faceDetected ? "Detected" : "Searching");
   updateText("#diagnostic-frames", state.vision.framesProcessed);
   updateText("#status-strip", `Current system status: ${state.camera.status}`);
+
+  updateText("#session-status", formatSessionStatus(state.session.status));
+  updateText("#session-elapsed", formatElapsed(state.session.elapsedMs));
+
+  const startSessionButton = document.querySelector("#start-session");
+  if (startSessionButton) {
+    startSessionButton.disabled =
+      state.camera.status !== "active" || state.session.status === "recording";
+  }
+
+  const stopSessionButton = document.querySelector("#stop-session");
+  if (stopSessionButton) {
+    stopSessionButton.disabled = state.session.status !== "recording";
+  }
 
   const meter = document.querySelector("#quality-meter-fill");
   if (meter) {
@@ -105,6 +123,14 @@ function formatStatus(status) {
   if (status === "loading") return "Loading";
   if (status === "active") return "Active";
   if (status === "error") return "Error";
+
+  return status;
+}
+
+function formatSessionStatus(status) {
+  if (status === "idle") return "Ready";
+  if (status === "recording") return "Recording";
+  if (status === "complete") return "Complete";
 
   return status;
 }
