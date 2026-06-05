@@ -1,3 +1,9 @@
+import {
+  handleReactionTap,
+  resetReactionTest,
+  startReactionTest,
+  updateReactionTest,
+} from "./assessments/reaction-test.js";
 import { resetFollowDotScore } from "./assessments/follow-dot-score.js";
 import {
   resetFollowDot,
@@ -43,8 +49,7 @@ let cameraController = null;
 let animationFrameId = null;
 let videoElement = null;
 
-function fullRender() {
-  renderApp(root, store, {
+renderApp(root, store, {
   onStartCamera: startSystem,
   onReset: resetSystem,
   onStartSession: startSession,
@@ -52,6 +57,7 @@ function fullRender() {
   onSelectAssessment: handleSelectAssessment,
   onStartAssessment: handleStartAssessment,
   onStopAssessment: handleStopAssessment,
+  onReactionTap: handleReactionTargetTap,
 });
 
   videoElement = document.querySelector("#camera-feed");
@@ -90,6 +96,11 @@ async function startSystem() {
   }
 }
 
+function handleReactionTargetTap() {
+  handleReactionTap(store);
+  updateDynamicUI(store);
+}
+
 function handleSelectAssessment(assessmentId) {
   if (store.assessment.status === "running") return;
 
@@ -104,7 +115,15 @@ function handleStartAssessment() {
     resetFollowDotScore();
   }
 
+    if (store.assessment.activeId === "reaction-test") {
+    resetReactionTest();
+  }
+
   startAssessment(store);
+  
+    if (store.assessment.activeId === "reaction-test") {
+    startReactionTest(store);
+  }
 
   if (store.session.status !== "recording") {
     startSession();
@@ -236,6 +255,7 @@ function startVisionLoop(video) {
       updateSessionTiming();
       updateAssessmentTiming(store);
       updateFollowDot(store);
+      updateReactionTest(store);
       updateBaseline();
             store.pattern = generatePatternLabels(store);
             store.summary =
@@ -332,6 +352,7 @@ function resetSystem() {
   resetBaselineEngine();
   resetFollowDot();
   resetFollowDotScore();
+  resetReactionTest();
 
   if (cameraController) {
     cameraController.stop();
