@@ -1,6 +1,5 @@
-import {
-  renderSessionSummaryPanel,
-} from "./session-summary-panel.js";
+import { renderAssessmentPanel } from "./assessment-panel.js";
+import { renderAssessmentStage } from "./assessment-stage.js";
 import { renderBaselinePanel } from "./baseline-panel.js";
 import { renderCameraPanel } from "./camera-panel.js";
 import { renderPatternList, renderPatternPanel } from "./pattern-panel.js";
@@ -25,11 +24,12 @@ export function renderApp(root, state, actions) {
 
       <section class="section-stack">
         ${renderCameraPanel(state)}
+        ${renderAssessmentPanel(state)}
+        ${renderAssessmentStage(state)}
         ${renderSessionPanel(state)}
         ${renderSignalPanel(state)}
         ${renderBaselinePanel(state)}
         ${renderPatternPanel(state)}
-        ${renderSessionSummaryPanel(state)}
         ${renderTracePanel(state)}
         ${renderQualityPanel(state)}
 
@@ -44,6 +44,14 @@ export function renderApp(root, state, actions) {
   root.querySelector("#reset-app").addEventListener("click", actions.onReset);
   root.querySelector("#start-session").addEventListener("click", actions.onStartSession);
   root.querySelector("#stop-session").addEventListener("click", actions.onStopSession);
+  root.querySelector("#start-assessment").addEventListener("click", actions.onStartAssessment);
+  root.querySelector("#stop-assessment").addEventListener("click", actions.onStopAssessment);
+
+  root.querySelectorAll("[data-assessment-id]").forEach(button => {
+    button.addEventListener("click", () => {
+      actions.onSelectAssessment(button.dataset.assessmentId);
+    });
+  });
 }
 
 export function updateDynamicUI(state) {
@@ -56,24 +64,7 @@ export function updateDynamicUI(state) {
     "#signal-expression-variability",
     formatSignal(state.signals.expressionVariability)
   );
-  updateText(
-  "#summary-title",
-  state.summary.title
-);
 
-updateText(
-  "#summary-text",
-  state.summary.summary
-);
-
-updateText(
-  "#summary-confidence",
-  state.summary.confidence
-    ? `${Math.round(
-        state.summary.confidence
-      )}%`
-    : "—"
-);
   updateText("#diagnostic-confidence", `${Math.round(state.quality.confidence)}%`);
   updateText("#diagnostic-camera", formatStatus(state.camera.status));
   updateText("#diagnostic-vision", formatStatus(state.vision.status));
@@ -84,19 +75,12 @@ updateText(
   updateText("#session-status", formatSessionStatus(state.session.status));
   updateText("#session-elapsed", formatElapsed(state.session.elapsedMs));
 
+  updateText("#assessment-time", formatElapsed(state.assessment.elapsedMs));
+
   updateBaselineUI(state);
   updatePatternUI(state);
-
-  const startSessionButton = document.querySelector("#start-session");
-  if (startSessionButton) {
-    startSessionButton.disabled =
-      state.camera.status !== "active" || state.session.status === "recording";
-  }
-
-  const stopSessionButton = document.querySelector("#stop-session");
-  if (stopSessionButton) {
-    stopSessionButton.disabled = state.session.status !== "recording";
-  }
+  updateSummaryUI(state);
+  updateActionButtons(state);
 
   const meter = document.querySelector("#quality-meter-fill");
   if (meter) {
@@ -120,6 +104,44 @@ updateText(
 
   updateQualityNotes(state);
   updateTracePanel(state);
+}
+
+function updateSummaryUI(state) {
+  updateText("#summary-title", state.summary.title);
+  updateText("#summary-text", state.summary.summary);
+
+  updateText(
+    "#summary-confidence",
+    state.summary.confidence
+      ? `${Math.round(state.summary.confidence)}%`
+      : "—"
+  );
+}
+
+function updateActionButtons(state) {
+  const startSessionButton = document.querySelector("#start-session");
+  if (startSessionButton) {
+    startSessionButton.disabled =
+      state.camera.status !== "active" || state.session.status === "recording";
+  }
+
+  const stopSessionButton = document.querySelector("#stop-session");
+  if (stopSessionButton) {
+    stopSessionButton.disabled = state.session.status !== "recording";
+  }
+
+  const startAssessmentButton = document.querySelector("#start-assessment");
+  if (startAssessmentButton) {
+    startAssessmentButton.disabled =
+      state.camera.status !== "active" ||
+      state.assessment.status === "running";
+  }
+
+  const stopAssessmentButton = document.querySelector("#stop-assessment");
+  if (stopAssessmentButton) {
+    stopAssessmentButton.disabled =
+      state.assessment.status !== "running";
+  }
 }
 
 function updatePatternUI(state) {
