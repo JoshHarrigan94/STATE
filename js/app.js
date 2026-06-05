@@ -1,3 +1,4 @@
+import { resetFollowDotScore } from "./assessments/follow-dot-score.js";
 import {
   resetFollowDot,
   updateFollowDot,
@@ -98,6 +99,10 @@ function handleSelectAssessment(assessmentId) {
 
 function handleStartAssessment() {
   if (store.camera.status !== "active") return;
+
+  if (store.assessment.activeId === "follow-dot") {
+    resetFollowDotScore();
+  }
 
   startAssessment(store);
 
@@ -326,6 +331,7 @@ function resetSystem() {
   resetSmoothing();
   resetBaselineEngine();
   resetFollowDot();
+  resetFollowDotScore();
 
   if (cameraController) {
     cameraController.stop();
