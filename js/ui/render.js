@@ -1,5 +1,8 @@
 import { renderAssessmentPanel } from "./assessment-panel.js";
-import { renderAssessmentStage } from "./assessment-stage.js";
+import {
+  renderAssessmentStage,
+  updateAssessmentStage,
+} from "./assessment-stage.js";
 import { renderBaselinePanel } from "./baseline-panel.js";
 import { renderCameraPanel } from "./camera-panel.js";
 import { renderPatternList, renderPatternPanel } from "./pattern-panel.js";
@@ -76,7 +79,7 @@ export function updateDynamicUI(state) {
   updateText("#session-elapsed", formatElapsed(state.session.elapsedMs));
 
   updateText("#assessment-time", formatElapsed(state.assessment.elapsedMs));
-
+  updateAssessmentStage(state);
   updateBaselineUI(state);
   updatePatternUI(state);
   updateSummaryUI(state);
