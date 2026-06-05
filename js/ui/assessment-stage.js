@@ -29,7 +29,7 @@ export function renderAssessmentStage(state) {
 
       <div 
         id="assessment-target" 
-        class="assessment-target ${assessment.id === "follow-dot" ? "follow-dot-stage" : ""}"
+        class="assessment-target ${getAssessmentTargetClass(assessment.id, state)}"
       >
         ${renderAssessmentTarget(assessment.id, state)}
       </div>
@@ -64,6 +64,10 @@ export function updateAssessmentStage(state) {
     updateFollowDotStage(state);
   }
 
+  if (state.assessment.activeId === "reaction-test") {
+    updateReactionStage(state);
+  }
+
   const result = document.querySelector("#assessment-result");
   if (result) {
     result.innerHTML = renderAssessmentResult(state);
@@ -82,6 +86,26 @@ function updateFollowDotStage(state) {
   dot.style.top = `${result.dotY}%`;
 }
 
+function updateReactionStage(state) {
+  const target = document.querySelector("#assessment-target");
+  const message = document.querySelector("#reaction-message");
+
+  const result = state.assessment.result;
+  if (!result || result.type !== "reaction-test") return;
+
+  if (target) {
+    target.classList.toggle("is-go", result.phase === "go");
+    target.classList.toggle("is-waiting", result.phase === "waiting");
+    target.classList.toggle("is-false-start", result.phase === "false-start");
+    target.classList.toggle("is-registered", result.phase === "registered");
+    target.classList.toggle("is-complete", result.phase === "complete");
+  }
+
+  if (message) {
+    message.textContent = result.message;
+  }
+}
+
 function renderAssessmentTarget(id, state) {
   if (id === "follow-dot") {
     return `
@@ -97,6 +121,22 @@ function renderAssessmentTarget(id, state) {
     `;
   }
 
+  if (id === "reaction-test") {
+    const result = state.assessment.result;
+
+    return `
+      <button
+        id="reaction-target"
+        class="reaction-target"
+        type="button"
+      >
+        <span id="reaction-message">
+          ${result?.message || "Press start to begin."}
+        </span>
+      </button>
+    `;
+  }
+
   return `
     <div class="assessment-target-placeholder">
       ${getPlaceholderText(id)}
@@ -107,14 +147,22 @@ function renderAssessmentTarget(id, state) {
 function renderAssessmentResult(state) {
   const result = state.assessment.result;
 
-  if (!result || result.type !== "follow-dot") {
-    return `
-      <p class="assessment-result-placeholder">
-        Assessment result will appear here.
-      </p>
-    `;
+  if (result?.type === "follow-dot") {
+    return renderFollowDotResult(result);
   }
 
+  if (result?.type === "reaction-test") {
+    return renderReactionResult(result);
+  }
+
+  return `
+    <p class="assessment-result-placeholder">
+      Assessment result will appear here.
+    </p>
+  `;
+}
+
+function renderFollowDotResult(result) {
   const score = result.score;
 
   if (!score?.ready) {
@@ -155,6 +203,40 @@ function renderAssessmentResult(state) {
   `;
 }
 
+function renderReactionResult(result) {
+  const score = result.score;
+
+  return `
+    <article class="assessment-score-card">
+      <span>Reaction Test</span>
+      <strong>
+        ${score?.ready ? `${Math.round(score.score)}%` : score.label}
+      </strong>
+
+      <p>
+        ${score?.ready ? `${score.label}. ${score.detail}` : score.detail}
+      </p>
+
+      <div class="assessment-metrics">
+        ${metricItem("Trials", `${result.completedTrials}/${result.targetTrials}`)}
+        ${metricItem(
+          "Avg Reaction",
+          Number.isFinite(result.averageReactionTime)
+            ? `${Math.round(result.averageReactionTime)}ms`
+            : "—"
+        )}
+        ${metricItem(
+          "Consistency",
+          Number.isFinite(result.consistency)
+            ? `${Math.round(result.consistency)}ms`
+            : "—"
+        )}
+        ${metricItem("False Starts", result.falseStarts)}
+      </div>
+    </article>
+  `;
+}
+
 function metricItem(label, value) {
   return `
     <div class="assessment-metric">
@@ -164,8 +246,18 @@ function metricItem(label, value) {
   `;
 }
 
+function getAssessmentTargetClass(id, state) {
+  if (id === "follow-dot") return "follow-dot-stage";
+
+  if (id === "reaction-test") {
+    const phase = state.assessment.result?.phase || "idle";
+    return `reaction-stage is-${phase}`;
+  }
+
+  return "";
+}
+
 function getPlaceholderText(id) {
-  if (id === "reaction-test") return "Reaction stimulus will render here.";
   if (id === "reading-focus") return "Reading passage will render here.";
   if (id === "stillness-test") return "Stillness target will render here.";
 
