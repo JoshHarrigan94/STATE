@@ -8,7 +8,7 @@ export function renderSignalPanel(state) {
       ${signalCard("Blink Duration", formatSignal(state.signals.blinkDuration, "ms"))}
       ${signalCard("Head Stability", formatPercent(state.signals.headStability))}
       ${signalCard("Head Tilt", formatSignal(state.signals.headTilt, " rad"))}
-      ${signalCard("Face Size", formatSignal(state.signals.faceSize))}
+      ${signalCard("Expression Variability", formatSignal(state.signals.expressionVariability))}
     </section>
   `;
 }
