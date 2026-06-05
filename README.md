@@ -12,7 +12,7 @@ The goal is to prove that a browser-based camera can extract stable behavioural 
 
 ## Current Build Stage
 
-Pass 7: Expression variability from MediaPipe face blendshapes.
+Pass 9: Smoothing and calibration visibility.
 
 ## Core Pipeline
 
@@ -26,6 +26,8 @@ Camera
 → Face size  
 → Blendshape activity  
 → Expression variability  
+→ Rolling feature window  
+→ Signal smoothing  
 → Signal quality  
 → Confidence  
 
@@ -48,6 +50,9 @@ Camera
 - Signal quality
 - Confidence
 - Quality notes
+- Rolling window duration
+- Smoothing alpha
+- Samples in active window
 
 ## Important Boundary
 
