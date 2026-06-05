@@ -62,6 +62,33 @@ function calculateHeadCentre(landmarks) {
   return midpoint(leftEye, rightEye);
 }
 
+function extractBlendshapeActivity(result) {
+  const categories = result?.faceBlendshapes?.[0]?.categories;
+
+  if (!categories?.length) {
+    return {
+      blendshapeActivity: 0,
+      expressionSignature: {},
+    };
+  }
+
+  const expressionSignature = {};
+  let totalActivity = 0;
+
+  categories.forEach(category => {
+    const name = category.categoryName;
+    const score = category.score || 0;
+
+    expressionSignature[name] = score;
+    totalActivity += Math.abs(score);
+  });
+
+  return {
+    blendshapeActivity: totalActivity / categories.length,
+    expressionSignature,
+  };
+}
+
 export function extractFaceSignals(result) {
   const landmarks = result?.faceLandmarks?.[0];
 
@@ -81,6 +108,7 @@ export function extractFaceSignals(result) {
   const headTilt = calculateHeadTilt(landmarks);
   const headCentre = calculateHeadCentre(landmarks);
   const bounds = calculateFaceBounds(landmarks);
+  const blendshapes = extractBlendshapeActivity(result);
 
   return {
     eyeOpenness,
@@ -91,5 +119,7 @@ export function extractFaceSignals(result) {
     headCentreY: headCentre.y,
     faceWidth: bounds.faceWidth,
     faceHeight: bounds.faceHeight,
+    blendshapeActivity: blendshapes.blendshapeActivity,
+    expressionSignature: blendshapes.expressionSignature,
   };
 }
