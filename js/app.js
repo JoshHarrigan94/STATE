@@ -12,6 +12,12 @@ import {
   resetFeatureWindow,
   updateFeatureWindow,
 } from "./engine/feature-window.js";
+import {
+  compareToBaseline,
+  getBaselineProgress,
+  resetBaselineEngine,
+  updateBaselineEngine,
+} from "./engine/baseline-engine.js";
 import { config } from "./config/config.js";
 import { resetSmoothing, smoothValue } from "./utils/smoothing.js";
 
@@ -68,12 +74,18 @@ async function startSystem() {
 function startSession() {
   if (store.camera.status !== "active") return;
 
+  resetBaselineEngine();
+
   store.session.status = "recording";
   store.session.startedAt = performance.now();
   store.session.endedAt = null;
   store.session.elapsedMs = 0;
   store.session.samplesRecorded = 0;
   store.trace.points = [];
+
+  store.baseline.progress = 0;
+  store.baseline.complete = false;
+  resetBaselineState();
 
   updateDynamicUI(store);
 }
@@ -175,6 +187,7 @@ function startVisionLoop(video) {
       store.quality.notes = quality.notes;
 
       updateSessionTiming();
+      updateBaseline();
 
       if (store.session.status === "recording") {
         pushTracePoint();
@@ -194,6 +207,43 @@ function updateSessionTiming() {
   if (store.session.status !== "recording") return;
 
   store.session.elapsedMs = performance.now() - store.session.startedAt;
+}
+
+function updateBaseline() {
+  if (store.session.status !== "recording") return;
+
+  const baseline = updateBaselineEngine(store.session, store.signals);
+
+  store.baseline.progress = getBaselineProgress(store.session);
+
+  if (baseline) {
+    store.baseline.complete = store.baseline.progress >= 1;
+    store.baseline.sampleCount = baseline.sampleCount;
+
+    store.baseline.values.eyeOpenness = baseline.eyeOpenness;
+    store.baseline.values.blinkRate = baseline.blinkRate;
+    store.baseline.values.headStability = baseline.headStability;
+    store.baseline.values.headTilt = baseline.headTilt;
+    store.baseline.values.expressionVariability = baseline.expressionVariability;
+
+    store.baseline.deltas = compareToBaseline(store.signals, store.baseline.values);
+  }
+}
+
+function resetBaselineState() {
+  store.baseline.values.eyeOpenness = null;
+  store.baseline.values.blinkRate = null;
+  store.baseline.values.headStability = null;
+  store.baseline.values.headTilt = null;
+  store.baseline.values.expressionVariability = null;
+
+  store.baseline.deltas.eyeOpennessDelta = null;
+  store.baseline.deltas.blinkRateDelta = null;
+  store.baseline.deltas.headStabilityDelta = null;
+  store.baseline.deltas.headTiltDelta = null;
+  store.baseline.deltas.expressionVariabilityDelta = null;
+
+  store.baseline.sampleCount = 0;
 }
 
 function pushTracePoint() {
@@ -220,6 +270,7 @@ function resetSystem() {
   cancelVisionLoop();
   resetFeatureWindow();
   resetSmoothing();
+  resetBaselineEngine();
 
   if (cameraController) {
     cameraController.stop();
@@ -250,6 +301,10 @@ function resetSystem() {
   store.signals.headTilt = null;
   store.signals.faceSize = null;
   store.signals.expressionVariability = null;
+
+  store.baseline.progress = 0;
+  store.baseline.complete = false;
+  resetBaselineState();
 
   store.calibration.sampleCount = 0;
   store.calibration.smoothingAlpha = config.smoothing.alpha;
