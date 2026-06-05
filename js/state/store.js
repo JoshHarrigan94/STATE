@@ -40,6 +40,26 @@ export const store = {
     expressionVariability: null,
   },
 
+  baseline: {
+    progress: 0,
+    complete: false,
+    values: {
+      eyeOpenness: null,
+      blinkRate: null,
+      headStability: null,
+      headTilt: null,
+      expressionVariability: null,
+    },
+    deltas: {
+      eyeOpennessDelta: null,
+      blinkRateDelta: null,
+      headStabilityDelta: null,
+      headTiltDelta: null,
+      expressionVariabilityDelta: null,
+    },
+    sampleCount: 0,
+  },
+
   calibration: {
     sampleCount: 0,
     smoothingAlpha: 0.22,
