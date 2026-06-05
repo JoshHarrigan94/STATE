@@ -20,6 +20,7 @@ export function updateFeatureWindow(signals) {
       headStability: null,
       headTilt: null,
       faceSize: null,
+      expressionVariability: null,
     };
   }
 
@@ -31,6 +32,7 @@ export function updateFeatureWindow(signals) {
     headCentreY: signals.headCentreY,
     faceWidth: signals.faceWidth,
     faceHeight: signals.faceHeight,
+    blendshapeActivity: signals.blendshapeActivity,
   });
 
   detectBlink(signals.eyeOpenness, now);
@@ -75,6 +77,7 @@ function buildFeatures() {
     headStability: calculateHeadStability(),
     headTilt: average("headTilt"),
     faceSize: averageFaceSize(),
+    expressionVariability: standardDeviation("blendshapeActivity"),
   };
 }
 
@@ -86,6 +89,22 @@ function average(key) {
   if (!values.length) return null;
 
   return values.reduce((sum, value) => sum + value, 0) / values.length;
+}
+
+function standardDeviation(key) {
+  const values = samples
+    .map(sample => sample[key])
+    .filter(value => Number.isFinite(value));
+
+  if (values.length < 4) return null;
+
+  const mean = values.reduce((sum, value) => sum + value, 0) / values.length;
+
+  const variance =
+    values.reduce((sum, value) => sum + (value - mean) ** 2, 0) /
+    values.length;
+
+  return Math.sqrt(variance);
 }
 
 function averageBlinkDuration() {
