@@ -1,6 +1,4 @@
-const WINDOW_MS = 10_000;
-const BLINK_THRESHOLD = 0.2;
-const BLINK_EXIT_THRESHOLD = 0.24;
+import { config } from "../config/config.js";
 
 let samples = [];
 let blinkEvents = [];
@@ -21,6 +19,7 @@ export function updateFeatureWindow(signals) {
       headTilt: null,
       faceSize: null,
       expressionVariability: null,
+      sampleCount: samples.length,
     };
   }
 
@@ -42,15 +41,18 @@ export function updateFeatureWindow(signals) {
 }
 
 function detectBlink(eyeOpenness, now) {
-  if (!blinkActive && eyeOpenness < BLINK_THRESHOLD) {
+  if (!blinkActive && eyeOpenness < config.blink.threshold) {
     blinkActive = true;
     blinkStartedAt = now;
   }
 
-  if (blinkActive && eyeOpenness > BLINK_EXIT_THRESHOLD) {
+  if (blinkActive && eyeOpenness > config.blink.exitThreshold) {
     const duration = now - blinkStartedAt;
 
-    if (duration > 40 && duration < 600) {
+    if (
+      duration > config.blink.minDurationMs &&
+      duration < config.blink.maxDurationMs
+    ) {
       blinkEvents.push({
         time: now,
         duration,
@@ -63,7 +65,7 @@ function detectBlink(eyeOpenness, now) {
 }
 
 function prune(now) {
-  const windowStart = now - WINDOW_MS;
+  const windowStart = now - config.features.windowMs;
 
   samples = samples.filter(sample => sample.time >= windowStart);
   blinkEvents = blinkEvents.filter(event => event.time >= windowStart);
@@ -72,12 +74,13 @@ function prune(now) {
 function buildFeatures() {
   return {
     eyeOpenness: average("eyeOpenness"),
-    blinkRate: blinkEvents.length * (60_000 / WINDOW_MS),
+    blinkRate: blinkEvents.length * (60_000 / config.features.windowMs),
     blinkDuration: averageBlinkDuration(),
     headStability: calculateHeadStability(),
     headTilt: average("headTilt"),
     faceSize: averageFaceSize(),
     expressionVariability: standardDeviation("blendshapeActivity"),
+    sampleCount: samples.length,
   };
 }
 
@@ -96,7 +99,7 @@ function standardDeviation(key) {
     .map(sample => sample[key])
     .filter(value => Number.isFinite(value));
 
-  if (values.length < 4) return null;
+  if (values.length < config.features.minSamplesForStability) return null;
 
   const mean = values.reduce((sum, value) => sum + value, 0) / values.length;
 
@@ -129,7 +132,7 @@ function averageFaceSize() {
 }
 
 function calculateHeadStability() {
-  if (samples.length < 4) return null;
+  if (samples.length < config.features.minSamplesForStability) return null;
 
   const movements = [];
 
