@@ -7,7 +7,7 @@ export async function loadFaceLandmarker() {
   if (faceLandmarker) return faceLandmarker;
 
   const visionModule = await import(
-    `${config.mediapipe.tasksVisionUrl}/vision_bundle.js`
+    `${config.mediapipe.tasksVisionUrl}/vision_bundle.mjs`
   );
 
   const { FilesetResolver, FaceLandmarker } = visionModule;
@@ -34,23 +34,13 @@ export async function loadFaceLandmarker() {
 }
 
 export function detectFaceFromVideo(videoElement) {
-  if (!faceLandmarker) {
-    return null;
-  }
-
-  if (!videoElement || videoElement.readyState < 2) {
-    return null;
-  }
-
-  if (videoElement.currentTime === lastVideoTime) {
-    return null;
-  }
+  if (!faceLandmarker) return null;
+  if (!videoElement || videoElement.readyState < 2) return null;
+  if (videoElement.currentTime === lastVideoTime) return null;
 
   lastVideoTime = videoElement.currentTime;
 
-  const timestampMs = performance.now();
-
-  return faceLandmarker.detectForVideo(videoElement, timestampMs);
+  return faceLandmarker.detectForVideo(videoElement, performance.now());
 }
 
 export function hasDetectedFace(result) {
