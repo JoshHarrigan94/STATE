@@ -12,7 +12,7 @@ The goal is to prove that a browser-based camera can extract stable behavioural 
 
 ## Current Build Stage
 
-Pass 6: Diagnostic panel and quality notes.
+Pass 7: Expression variability from MediaPipe face blendshapes.
 
 ## Core Pipeline
 
@@ -24,6 +24,8 @@ Camera
 → Head tilt  
 → Head stability  
 → Face size  
+→ Blendshape activity  
+→ Expression variability  
 → Signal quality  
 → Confidence  
 
@@ -35,8 +37,9 @@ Camera
 - Head stability
 - Head tilt
 - Face size
+- Expression variability
 
-## Current Diagnostics
+## Diagnostics
 
 - Camera status
 - Vision engine status
@@ -45,6 +48,16 @@ Camera
 - Signal quality
 - Confidence
 - Quality notes
+
+## Important Boundary
+
+STATE V1 does not perform emotion detection.
+
+Expression variability means:
+
+> the amount of visible facial change over time
+
+It does not mean happy, sad, angry, stressed, depressed, or anxious.
 
 ## Deployment
 
