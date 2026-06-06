@@ -7,7 +7,7 @@ export function renderSignalPanel(state) {
       ${signalCard("Blink Rate", "signal-blink-rate", formatSignal(state.signals.blinkRate, "/min"))}
       ${signalCard("Blink Duration", "signal-blink-duration", formatSignal(state.signals.blinkDuration, "ms"))}
       ${signalCard("Head Stability", "signal-head-stability", formatPercent(state.signals.headStability))}
-      ${signalCard("Head Tilt", "signal-head-tilt", formatSignal(state.signals.headTilt, " rad"))}
+      ${signalCard("Blink Status", "signal-blink-status", formatBlinkStatus(state.signals.blinkStatus))}
       ${signalCard("Expression Variability", "signal-expression-variability", formatSignal(state.signals.expressionVariability))}
     </section>
   `;
