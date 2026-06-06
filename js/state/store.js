@@ -6,6 +6,10 @@ export const store = {
     description:
       "A static GitHub Pages prototype for extracting behavioural state signals from the face.",
   },
+  
+  ui: {
+  activeView: "scan",
+},
 
   camera: {
     status: "idle",
