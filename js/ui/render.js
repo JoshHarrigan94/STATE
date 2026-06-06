@@ -67,7 +67,10 @@ if (reactionTarget) {
 export function updateDynamicUI(state) {
   updateText("#signal-eye-openness", formatSignal(state.signals.eyeOpenness));
   updateText("#signal-blink-rate", formatSignal(state.signals.blinkRate, "/min"));
-  updateText("#signal-blink-duration", formatSignal(state.signals.blinkDuration, "ms"));
+  updateText(
+  "#signal-blink-duration",
+  formatSignal(state.signals.lastBlinkDuration, "ms")
+);
   updateText("#signal-head-stability", formatPercent(state.signals.headStability));
   updateText("#signal-head-tilt", formatSignal(state.signals.headTilt, " rad"));
   updateText(
@@ -84,7 +87,10 @@ export function updateDynamicUI(state) {
 
   updateText("#session-status", formatSessionStatus(state.session.status));
   updateText("#session-elapsed", formatElapsed(state.session.elapsedMs));
-
+  updateText(
+  "#signal-blink-status",
+  formatBlinkStatus(state.signals.blinkStatus)
+);
   updateText("#assessment-time", formatElapsed(state.assessment.elapsedMs));
   updateAssessmentStage(state);
   updateBaselineUI(state);
@@ -225,6 +231,13 @@ function updateText(selector, value) {
   if (!element) return;
 
   element.textContent = value;
+}
+
+function formatBlinkStatus(status) {
+  if (status === "blink") return "Blink";
+  if (status === "recent") return "Recent";
+  if (status === "tracking") return "Tracking";
+  return "Waiting";
 }
 
 function formatStatus(status) {
