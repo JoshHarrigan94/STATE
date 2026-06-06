@@ -1,4 +1,3 @@
-import { renderSessionSummaryPanel } from "./session-summary-panel.js";
 import { renderAssessmentPanel } from "./assessment-panel.js";
 import {
   renderAssessmentStage,
@@ -6,11 +5,13 @@ import {
 } from "./assessment-stage.js";
 import { renderBaselinePanel } from "./baseline-panel.js";
 import { renderCameraPanel } from "./camera-panel.js";
+import { renderNavigation } from "./navigation.js";
 import { renderPatternList, renderPatternPanel } from "./pattern-panel.js";
 import { renderSignalPanel } from "./signal-panel.js";
 import { renderTracePanel, updateTracePanel } from "./trace-panel.js";
 import { renderQualityPanel } from "./quality-panel.js";
 import { renderSessionPanel, formatElapsed } from "./session-panel.js";
+import { renderSessionSummaryPanel } from "./session-summary-panel.js";
 import {
   formatDelta,
   formatPercent,
@@ -26,40 +27,94 @@ export function renderApp(root, state, actions) {
         <p class="hero-subtitle">${state.app.description}</p>
       </header>
 
-      <section class="section-stack">
-        ${renderCameraPanel(state)}
-        ${renderAssessmentPanel(state)}
-        ${renderAssessmentStage(state)}
-        ${renderSessionPanel(state)}
-        ${renderSignalPanel(state)}
-        ${renderBaselinePanel(state)}
-        ${renderPatternPanel(state)}
-        ${renderSessionSummaryPanel(state)}
-        ${renderTracePanel(state)}
-        ${renderQualityPanel(state)}
+      ${renderNavigation(state)}
 
-        <div class="status-strip" id="status-strip">
-          Current system status: ${state.camera.status}
-        </div>
+      <section class="view-stack">
+        ${renderActiveView(state)}
       </section>
     </main>
   `;
 
-  root.querySelector("#start-camera").addEventListener("click", actions.onStartCamera);
-  root.querySelector("#reset-app").addEventListener("click", actions.onReset);
-  root.querySelector("#start-session").addEventListener("click", actions.onStartSession);
-  root.querySelector("#stop-session").addEventListener("click", actions.onStopSession);
-  root.querySelector("#start-assessment").addEventListener("click", actions.onStartAssessment);
-  root.querySelector("#stop-assessment").addEventListener("click", actions.onStopAssessment);
-
-  const reactionTarget = root.querySelector("#reaction-target");
-if (reactionTarget) {
-  reactionTarget.addEventListener("click", actions.onReactionTap);
+  bindCoreActions(root, actions);
+  bindNavigation(root, state, actions);
 }
+
+function renderActiveView(state) {
+  if (state.ui.activeView === "scan") {
+    return `
+      ${renderCameraPanel(state)}
+      ${renderSessionPanel(state)}
+      ${renderSessionSummaryPanel(state)}
+    `;
+  }
+
+  if (state.ui.activeView === "tests") {
+    return `
+      ${renderAssessmentPanel(state)}
+      ${renderAssessmentStage(state)}
+    `;
+  }
+
+  if (state.ui.activeView === "signals") {
+    return `
+      ${renderSignalPanel(state)}
+      ${renderTracePanel(state)}
+      ${renderBaselinePanel(state)}
+    `;
+  }
+
+  if (state.ui.activeView === "results") {
+    return `
+      ${renderPatternPanel(state)}
+      ${renderSessionSummaryPanel(state)}
+    `;
+  }
+
+  if (state.ui.activeView === "diagnostics") {
+    return `
+      ${renderQualityPanel(state)}
+
+      <div class="status-strip" id="status-strip">
+        Current system status: ${state.camera.status}
+      </div>
+    `;
+  }
+
+  return `
+    ${renderCameraPanel(state)}
+  `;
+}
+
+function bindCoreActions(root, actions) {
+  root.querySelector("#start-camera")?.addEventListener("click", actions.onStartCamera);
+  root.querySelector("#reset-app")?.addEventListener("click", actions.onReset);
+  root.querySelector("#start-session")?.addEventListener("click", actions.onStartSession);
+  root.querySelector("#stop-session")?.addEventListener("click", actions.onStopSession);
+  root.querySelector("#start-assessment")?.addEventListener("click", actions.onStartAssessment);
+  root.querySelector("#stop-assessment")?.addEventListener("click", actions.onStopAssessment);
 
   root.querySelectorAll("[data-assessment-id]").forEach(button => {
     button.addEventListener("click", () => {
       actions.onSelectAssessment(button.dataset.assessmentId);
+    });
+  });
+
+  const reactionTarget = root.querySelector("#reaction-target");
+  if (reactionTarget) {
+    reactionTarget.addEventListener("click", actions.onReactionTap);
+  }
+
+  const completeReadingButton = root.querySelector("#complete-reading");
+  if (completeReadingButton) {
+    completeReadingButton.addEventListener("click", actions.onCompleteReading);
+  }
+}
+
+function bindNavigation(root, state, actions) {
+  root.querySelectorAll("[data-nav-view]").forEach(button => {
+    button.addEventListener("click", () => {
+      state.ui.activeView = button.dataset.navView;
+      actions.onNavigate();
     });
   });
 }
@@ -68,14 +123,18 @@ export function updateDynamicUI(state) {
   updateText("#signal-eye-openness", formatSignal(state.signals.eyeOpenness));
   updateText("#signal-blink-rate", formatSignal(state.signals.blinkRate, "/min"));
   updateText(
-  "#signal-blink-duration",
-  formatSignal(state.signals.lastBlinkDuration, "ms")
-);
+    "#signal-blink-duration",
+    formatSignal(state.signals.lastBlinkDuration, "ms")
+  );
   updateText("#signal-head-stability", formatPercent(state.signals.headStability));
   updateText("#signal-head-tilt", formatSignal(state.signals.headTilt, " rad"));
   updateText(
     "#signal-expression-variability",
     formatSignal(state.signals.expressionVariability)
+  );
+  updateText(
+    "#signal-blink-status",
+    formatBlinkStatus(state.signals.blinkStatus)
   );
 
   updateText("#diagnostic-confidence", `${Math.round(state.quality.confidence)}%`);
@@ -87,16 +146,13 @@ export function updateDynamicUI(state) {
 
   updateText("#session-status", formatSessionStatus(state.session.status));
   updateText("#session-elapsed", formatElapsed(state.session.elapsedMs));
-  updateText(
-  "#signal-blink-status",
-  formatBlinkStatus(state.signals.blinkStatus)
-);
   updateText("#assessment-time", formatElapsed(state.assessment.elapsedMs));
-  updateAssessmentStage(state);
+
   updateBaselineUI(state);
   updatePatternUI(state);
   updateSummaryUI(state);
   updateActionButtons(state);
+  updateAssessmentStage(state);
 
   const meter = document.querySelector("#quality-meter-fill");
   if (meter) {
@@ -233,13 +289,6 @@ function updateText(selector, value) {
   element.textContent = value;
 }
 
-function formatBlinkStatus(status) {
-  if (status === "blink") return "Blink";
-  if (status === "recent") return "Recent";
-  if (status === "tracking") return "Tracking";
-  return "Waiting";
-}
-
 function formatStatus(status) {
   if (status === "not-loaded") return "Not loaded";
   if (status === "idle") return "Idle";
@@ -265,4 +314,11 @@ function formatPatternStatus(status) {
   if (status === "active") return "Active";
 
   return status;
+}
+
+function formatBlinkStatus(status) {
+  if (status === "blink") return "Blink";
+  if (status === "recent") return "Recent";
+  if (status === "tracking") return "Tracking";
+  return "Waiting";
 }
