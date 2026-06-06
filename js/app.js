@@ -91,6 +91,7 @@ function fullRender() {
     onStartAssessment: handleStartAssessment,
     onStopAssessment: handleStopAssessment,
     onReactionTap: handleReactionTargetTap,
+    onNavigate: fullRender,
   });
 
   videoElement = document.querySelector("#camera-feed");
