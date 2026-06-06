@@ -4,6 +4,8 @@ let samples = [];
 let blinkEvents = [];
 let blinkActive = false;
 let blinkStartedAt = null;
+let blinkCount = 0;
+let lastBlink = null;
 
 export function updateFeatureWindow(signals) {
   const now = performance.now();
@@ -15,6 +17,10 @@ export function updateFeatureWindow(signals) {
       eyeOpenness: null,
       blinkRate: 0,
       blinkDuration: null,
+      lastBlinkAt: lastBlink?.time || null,
+      lastBlinkDuration: lastBlink?.duration || null,
+      blinkCount,
+      blinkStatus: blinkActive ? "blink" : "waiting",
       headStability: null,
       headTilt: null,
       faceSize: null,
@@ -53,10 +59,14 @@ function detectBlink(eyeOpenness, now) {
       duration > config.blink.minDurationMs &&
       duration < config.blink.maxDurationMs
     ) {
-      blinkEvents.push({
+      const blink = {
         time: now,
         duration,
-      });
+      };
+
+      blinkEvents.push(blink);
+      lastBlink = blink;
+      blinkCount += 1;
     }
 
     blinkActive = false;
@@ -76,12 +86,27 @@ function buildFeatures() {
     eyeOpenness: average("eyeOpenness"),
     blinkRate: blinkEvents.length * (60_000 / config.features.windowMs),
     blinkDuration: averageBlinkDuration(),
+    lastBlinkAt: lastBlink?.time || null,
+    lastBlinkDuration: lastBlink?.duration || null,
+    blinkCount,
+    blinkStatus: getBlinkStatus(),
     headStability: calculateHeadStability(),
     headTilt: average("headTilt"),
     faceSize: averageFaceSize(),
     expressionVariability: standardDeviation("blendshapeActivity"),
     sampleCount: samples.length,
   };
+}
+
+function getBlinkStatus() {
+  if (blinkActive) return "blink";
+  if (!lastBlink) return "waiting";
+
+  const age = performance.now() - lastBlink.time;
+
+  if (age < 800) return "recent";
+
+  return "tracking";
 }
 
 function average(key) {
@@ -101,7 +126,8 @@ function standardDeviation(key) {
 
   if (values.length < config.features.minSamplesForStability) return null;
 
-  const mean = values.reduce((sum, value) => sum + value, 0) / values.length;
+  const mean =
+    values.reduce((sum, value) => sum + value, 0) / values.length;
 
   const variance =
     values.reduce((sum, value) => sum + (value - mean) ** 2, 0) /
@@ -120,8 +146,6 @@ function averageBlinkDuration() {
 }
 
 function averageFaceSize() {
-  if (!samples.length) return null;
-
   const values = samples
     .map(sample => sample.faceWidth * sample.faceHeight)
     .filter(value => Number.isFinite(value));
@@ -149,9 +173,7 @@ function calculateHeadStability() {
   const averageMovement =
     movements.reduce((sum, value) => sum + value, 0) / movements.length;
 
-  const stability = 1 - averageMovement * 80;
-
-  return clamp(stability, 0, 1);
+  return clamp(1 - averageMovement * 80, 0, 1);
 }
 
 function clamp(value, min, max) {
@@ -163,4 +185,6 @@ export function resetFeatureWindow() {
   blinkEvents = [];
   blinkActive = false;
   blinkStartedAt = null;
+  blinkCount = 0;
+  lastBlink = null;
 }
