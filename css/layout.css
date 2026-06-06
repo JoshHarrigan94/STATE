@@ -24,9 +24,10 @@
   line-height: 1.5;
 }
 
-.section-stack {
+.view-stack {
   display: grid;
   gap: 16px;
+  padding-bottom: 86px;
 }
 
 .signal-grid {
