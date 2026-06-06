@@ -254,6 +254,11 @@ function startVisionLoop(video) {
         config.smoothing.alpha
       );
 
+      store.signals.lastBlinkAt = features.lastBlinkAt;
+store.signals.lastBlinkDuration = features.lastBlinkDuration;
+store.signals.blinkCount = features.blinkCount;
+store.signals.blinkStatus = features.blinkStatus;
+
       store.signals.headStability = smoothValue(
         "headStability",
         features.headStability,
@@ -425,6 +430,10 @@ function resetSystem() {
   store.signals.headTilt = null;
   store.signals.faceSize = null;
   store.signals.expressionVariability = null;
+  store.signals.lastBlinkAt = null;
+store.signals.lastBlinkDuration = null;
+store.signals.blinkCount = 0;
+store.signals.blinkStatus = "waiting";
 
   store.baseline.progress = 0;
   store.baseline.complete = false;
