@@ -21,3 +21,10 @@ function signalCard(label, id, value) {
     </article>
   `;
 }
+
+function formatBlinkStatus(status) {
+  if (status === "blink") return "Blink";
+  if (status === "recent") return "Recent";
+  if (status === "tracking") return "Tracking";
+  return "Waiting";
+}
