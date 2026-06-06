@@ -1121,3 +1121,34 @@
   gap: 10px;
   margin-top: 16px;
 }
+
+.app-nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  margin: 0 0 16px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 250, 242, 0.86);
+  backdrop-filter: blur(16px);
+}
+
+.app-nav-item {
+  min-height: 38px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.app-nav-item.is-active {
+  background: var(--black);
+  color: white;
+}
